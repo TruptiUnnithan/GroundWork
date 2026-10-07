@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Groundwork</title>
+<meta name="description" content="A 90-day ramp-up system for new PMs: one private Loop workspace, a set of Copilot prompts and a fixed daily and weekly rhythm.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a site survey. The 90 days are drawn as a ground section to scale; checkpoints are benchmarks; one flagging-tape pink marks "you are here" and anything to act on. */
+:root {
+  --ground: #eceff1;
+  --surface: #ffffff;
+  --ink: #182026;
+  --muted: #56616a;
+  --rule: #c9d0d5;
+  --flag: #c81d66;
+  --flag-soft: #fbe3ee;
+  --stratum-1: #d9dfe3;
+  --stratum-2: #c6ced4;
+  --stratum-3: #b2bcc4;
+  --stratum-4: #9eaab3;
+  --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: 1.75rem;
+  --step-3: clamp(2.25rem, 5vw, 3.5rem);
+  --step-4: clamp(2.75rem, 8vw, 5.75rem);
+  --wrap: 72rem;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #13171a; --surface: #1b2125; --ink: #e6eaec; --muted: #9aa5ad; --rule: #2f383e;
+    --flag: #ff5c9d; --flag-soft: #3a1828;
+    --stratum-1: #252d33; --stratum-2: #2d363d; --stratum-3: #364048; --stratum-4: #404b54;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #13171a; --surface: #1b2125; --ink: #e6eaec; --muted: #9aa5ad; --rule: #2f383e;
+  --flag: #ff5c9d; --flag-soft: #3a1828;
+  --stratum-1: #252d33; --stratum-2: #2d363d; --stratum-3: #364048; --stratum-4: #404b54;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration-color: var(--flag); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; text-wrap: balance; margin: 0; }
+h2 { font-size: var(--step-3); font-weight: 800; font-stretch: 112%; letter-spacing: -0.01em; }
+h3 { font-size: var(--step-1); font-weight: 700; font-stretch: 100%; }
+p { margin: 0; max-width: 65ch; }
+.mono, .label { font-family: var(--font-mono); font-size: var(--step--1); }
+.label { text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: 16px; }
+@media (min-width: 40rem) { .wrap { padding-inline: 32px; } }
+
+/* Header */
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: color-mix(in srgb, var(--ground) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 12px; }
+.mark { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 1.125rem; letter-spacing: -0.01em; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+.mark svg { flex: none; }
+.nav { display: flex; gap: 20px; font-family: var(--font-mono); font-size: var(--step--1); overflow-x: auto; scrollbar-width: none; }
+.nav a { text-decoration: none; color: var(--muted); white-space: nowrap; }
+.nav a:hover { color: var(--ink); }
+@media (max-width: 46rem) { .nav { display: none; } }
+
+/* Hero */
+.hero { padding-block: 56px 40px; display: grid; gap: 40px; }
+.hero h1 { font-size: var(--step-4); font-weight: 900; font-stretch: 125%; letter-spacing: -0.025em; line-height: 0.95; max-width: 14ch; }
+.hero h1 em { font-style: normal; color: var(--flag); }
+.hero .lede { font-size: var(--step-1); line-height: 1.45; color: var(--ink); max-width: 52ch; }
+.hero .meta { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+
+/* Section: ground section to scale */
+.section-card { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px; display: grid; gap: 20px; }
+@media (min-width: 40rem) { .section-card { padding: 28px; } }
+.today { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+.today .big { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: clamp(2.5rem, 7vw, 4rem); line-height: 1; font-variant-numeric: tabular-nums; }
+.today .big span { color: var(--muted); font-weight: 500; font-size: 0.45em; font-stretch: 100%; }
+.today .phase-now { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); }
+.today .next { color: var(--muted); font-size: var(--step--1); font-family: var(--font-mono); }
+.datefield { display: grid; gap: 4px; }
+.datefield input { font: inherit; font-family: var(--font-mono); font-size: 0.9375rem; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--ground); color: var(--ink); }
+
+.strata-scroll { overflow-x: auto; }
+.strata { position: relative; min-width: 36rem; padding-top: 28px; padding-bottom: 34px; }
+.strata-row { display: grid; grid-template-columns: 14fr 16fr 30fr 30fr; height: 88px; border-top: 2px solid var(--ink); }
+.stratum { padding: 10px 12px; display: grid; align-content: start; gap: 2px; border-right: 1px dashed var(--rule); min-width: 0; }
+.stratum:nth-child(1) { background: var(--stratum-1); }
+.stratum:nth-child(2) { background: var(--stratum-2); }
+.stratum:nth-child(3) { background: var(--stratum-3); }
+.stratum:nth-child(4) { background: var(--stratum-4); border-right: 0; }
+.stratum b { font-family: var(--font-display); font-weight: 700; font-size: 0.9375rem; line-height: 1.2; }
+.stratum .mono { color: var(--ink); opacity: 0.75; }
+.stratum.is-now { box-shadow: inset 0 0 0 2px var(--flag); }
+.bench { position: absolute; bottom: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+.bench::before { content: ""; width: 10px; height: 10px; background: var(--ink); transform: rotate(45deg); }
+.bench.last { transform: translateX(-100%); justify-items: end; }
+.stake { position: absolute; top: 0; bottom: 30px; width: 2px; background: var(--flag); transform: translateX(-1px); transition: left 0.4s ease; }
+.stake::before { content: ""; position: absolute; top: 0; left: 2px; width: 22px; height: 14px; background: var(--flag); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.stake span { position: absolute; top: -2px; left: 28px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--flag); white-space: nowrap; font-weight: 500; }
+.stake.flip span { left: auto; right: 8px; }
+.stake.flip::before { left: auto; right: 2px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+
+/* Sections */
+section.block { padding-block: 72px 0; display: grid; gap: 28px; scroll-margin-top: 64px; }
+.head { display: grid; gap: 12px; }
+.head p { color: var(--muted); }
+.rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
+
+/* Gaps -> goals */
+.gaps { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.gap { display: grid; grid-template-columns: 1fr; gap: 8px; padding-block: 18px; border-bottom: 1px solid var(--rule); }
+@media (min-width: 52rem) { .gap { grid-template-columns: 11rem 1fr 1fr; gap: 28px; } }
+.gap h3 { font-size: 1.0625rem; }
+.gap .goal { font-family: var(--font-body); }
+.gap .goal b { font-weight: 600; }
+.gap .by { font-family: var(--font-mono); font-size: var(--step--1); color: var(--flag); display: block; margin-top: 4px; }
+
+/* Playbook */
+.sizer { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sizer .label { margin-right: 4px; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--surface); flex-wrap: wrap; }
+.seg button { font: inherit; font-family: var(--font-mono); font-size: var(--step--1); border: 0; background: transparent; color: var(--muted); padding: 7px 14px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.size-note { color: var(--muted); font-size: 0.9375rem; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: step; }
+.step { display: grid; grid-template-columns: 3rem 1fr; gap: 16px; padding-block: 18px; border-top: 1px solid var(--rule); transition: opacity 0.2s ease; }
+.step:last-child { border-bottom: 1px solid var(--rule); }
+.step .n { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 2rem; line-height: 1; color: var(--flag); font-variant-numeric: tabular-nums; }
+.step .body { display: grid; gap: 6px; min-width: 0; }
+.step.is-off { opacity: 0.32; }
+.step.is-off .n { color: var(--muted); }
+.step .skip { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); display: none; }
+.step.is-off .skip { display: inline; }
+.step .light { font-family: var(--font-mono); font-size: 0.75rem; color: var(--flag); display: none; }
+.step.is-light .light { display: inline; }
+.callout { background: var(--flag-soft); border-left: 3px solid var(--flag); padding: 14px 18px; border-radius: 0 4px 4px 0; }
+
+/* Brief */
+.two { display: grid; gap: 28px; }
+@media (min-width: 56rem) { .two { grid-template-columns: 1fr 1fr; align-items: start; } }
+.brief { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.brief-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--rule); }
+.brief dl { margin: 0; }
+.brief .row { display: grid; grid-template-columns: 1fr; gap: 4px; padding: 10px 16px; border-bottom: 1px solid var(--rule); }
+.brief .row:last-child { border-bottom: 0; }
+.brief dt { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.brief dd { margin: 0; min-height: 1.4em; border-bottom: 1px dotted var(--rule); }
+.btn { font: inherit; font-family: var(--font-mono); font-size: var(--step--1); border: 1px solid var(--ink); background: var(--ink); color: var(--ground); padding: 7px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+.btn.ghost { background: transparent; color: var(--ink); border-color: var(--rule); }
+.btn:hover { border-color: var(--flag); }
+.btn.done { background: var(--flag); border-color: var(--flag); color: var(--surface); }
+.sizes { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.sizes div { display: grid; grid-template-columns: 9rem 1fr; gap: 16px; padding-block: 12px; border-bottom: 1px solid var(--rule); }
+.sizes .mono { color: var(--muted); }
+
+/* Rhythm */
+.rhythm-scroll { overflow-x: auto; }
+.rhythm { width: 100%; border-collapse: collapse; min-width: 34rem; }
+.rhythm th, .rhythm td { text-align: left; padding: 14px 12px 14px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.rhythm th { font-family: var(--font-mono); font-weight: 400; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.rhythm td:first-child { font-family: var(--font-display); font-weight: 700; white-space: nowrap; }
+.rhythm .min { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bar { display: inline-block; height: 8px; background: var(--ink); vertical-align: middle; margin-right: 8px; border-radius: 1px; }
+.cap { display: flex; flex-wrap: wrap; gap: 8px 24px; align-items: baseline; }
+.cap strong { font-family: var(--font-display); font-weight: 800; font-size: var(--step-2); font-stretch: 112%; }
+
+/* Workspace */
+.pages { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.page { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; }
+.page h3 { font-size: 1.125rem; display: flex; justify-content: space-between; gap: 8px; }
+.page p { font-size: 0.9375rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-family: var(--font-mono); font-size: 0.75rem; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); }
+
+/* Prompts */
+.prompts { display: grid; gap: 12px; }
+@media (min-width: 52rem) { .prompts { grid-template-columns: 1fr 1fr; } }
+.prompt { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 16px 18px; display: grid; gap: 10px; align-content: start; min-width: 0; }
+.prompt-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.prompt-head h3 { font-size: 1.0625rem; }
+.prompt blockquote { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.55; color: var(--ink); background: var(--ground); padding: 12px 14px; border-radius: 4px; overflow-wrap: anywhere; }
+.prompt blockquote mark { background: var(--flag-soft); color: var(--flag); padding: 0 2px; border-radius: 2px; }
+.prompt .when { color: var(--muted); font-size: 0.875rem; }
+
+/* Modules */
+.modules { display: grid; gap: 40px; }
+@media (min-width: 56rem) { .modules { grid-template-columns: 1fr 1fr; gap: 48px 56px; } }
+.module { display: grid; gap: 12px; align-content: start; }
+.module .label { color: var(--flag); }
+.terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.terms span { font-family: var(--font-mono); font-size: 0.8125rem; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--surface); }
+.trace { display: flex; flex-wrap: wrap; gap: 0; font-family: var(--font-mono); font-size: 0.8125rem; }
+.trace span { padding: 6px 10px; border: 1px solid var(--rule); background: var(--surface); margin-right: -1px; }
+.trace span:last-child { background: var(--ink); color: var(--ground); border-color: var(--ink); }
+.qs { margin: 0; padding-left: 1.4rem; display: grid; gap: 6px; }
+.qs li::marker { font-family: var(--font-mono); color: var(--flag); }
+
+/* Checklists */
+.tiers { display: grid; gap: 16px; }
+@media (min-width: 56rem) { .tiers { grid-template-columns: 1.4fr 1fr 1fr; } }
+.tier { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 18px; display: grid; gap: 14px; align-content: start; }
+.tier-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.tier-head h3 { font-size: 1.125rem; }
+.tier .count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.checks label { display: grid; grid-template-columns: 20px 1fr; gap: 10px; cursor: pointer; font-size: 0.9375rem; line-height: 1.45; }
+.checks input { width: 18px; height: 18px; margin: 2px 0 0; accent-color: var(--flag); }
+.checks input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rule); }
+.checks .grp { font-family: var(--font-display); font-weight: 700; font-size: 0.9375rem; padding-top: 4px; }
+.tier p { font-size: 0.9375rem; }
+.tier p b { font-weight: 600; }
+.tier .gate { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+
+/* Metrics */
+.metrics-scroll { overflow-x: auto; }
+.metrics { width: 100%; border-collapse: collapse; min-width: 40rem; font-variant-numeric: tabular-nums; }
+.metrics th, .metrics td { text-align: left; padding: 12px 12px 12px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.metrics th { font-family: var(--font-mono); font-weight: 400; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.metrics td.t { font-family: var(--font-mono); font-size: 0.875rem; white-space: nowrap; }
+.metrics td.t90 { font-weight: 500; }
+.pill { font-family: var(--font-mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--rule); white-space: nowrap; }
+.pill.lead { border-color: var(--ink); color: var(--ink); }
+.pill.lag { color: var(--muted); }
+
+/* Risks + non-goals */
+.risks { display: grid; gap: 0; border-top: 1px solid var(--rule); }
+.risk { display: grid; gap: 6px; padding-block: 14px; border-bottom: 1px solid var(--rule); }
+@media (min-width: 52rem) { .risk { grid-template-columns: 1fr 6rem 1.2fr; gap: 24px; } }
+.lvl { font-family: var(--font-mono); font-size: 0.75rem; display: flex; align-items: center; gap: 6px; }
+.lvl i { display: inline-flex; gap: 2px; }
+.lvl i b { width: 6px; height: 12px; background: var(--rule); display: block; }
+.lvl.high i b { background: var(--flag); }
+.lvl.med i b:nth-child(-n+2) { background: var(--ink); }
+.lvl.low i b:first-child { background: var(--muted); }
+.risk .mit { color: var(--muted); font-size: 0.9375rem; }
+.nongoals { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); }
+.nongoals div { padding: 14px 16px; border: 1px dashed var(--rule); border-radius: 6px; display: grid; gap: 4px; align-content: start; }
+.nongoals b { font-family: var(--font-display); font-weight: 700; text-decoration: line-through; text-decoration-color: var(--flag); text-decoration-thickness: 2px; }
+.nongoals span { font-size: 0.9375rem; color: var(--muted); }
+
+/* Footer */
+footer { margin-top: 96px; border-top: 2px solid var(--ink); }
+footer .wrap { padding-block: 40px 56px; display: grid; gap: 16px; }
+footer .rule-line { font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: var(--step-2); line-height: 1.15; max-width: 26ch; text-wrap: balance; }
+footer .small { color: var(--muted); font-size: var(--step--1); font-family: var(--font-mono); }
+
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--ground); font-family: var(--font-mono); font-size: var(--step--1); padding: 8px 14px; border-radius: 4px; z-index: 20; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="mark" href="#top" aria-label="Groundwork, back to top">
+      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="0" y="12" width="22" height="2" fill="currentColor"/><rect x="0" y="16" width="22" height="6" fill="currentColor" opacity="0.35"/><rect x="5" y="1" width="2" height="13" fill="var(--flag)"/><path d="M7 1 L17 4.5 L7 8 Z" fill="var(--flag)"/></svg>
+      Groundwork
+    </a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#playbook">Playbook</a>
+      <a href="#rhythm">Rhythm</a>
+      <a href="#workspace">Workspace</a>
+      <a href="#prompts">Prompts</a>
+      <a href="#build">Build order</a>
+      <a href="#metrics">Metrics</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <div class="wrap">
+    <section class="hero">
+      <div style="display:grid; gap:20px">
+        <span class="label">A ramp-up system for a new PM's first 90 days</span>
+        <h1>Turn “can you look into X” into <em>scoped, agreed work</em> in two days.</h1>
+        <p class="lede">Groundwork is one private Loop workspace, a handful of Copilot prompts and a fixed daily and weekly rhythm. It turns scattered, undocumented team knowledge into things you can act on. It runs on sanctioned Microsoft tools, takes one afternoon to set up and needs no engineering.</p>
+        <div class="meta">
+          <span class="label">20 min a day, at most</span>
+          <span class="label">7 workspace pages</span>
+          <span class="label">3 manager checkpoints</span>
+        </div>
+      </div>
+
+      <div class="section-card" aria-labelledby="today-title">
+        <div class="today">
+          <div style="display:grid; gap:6px">
+            <span class="label" id="today-title">Where you are</span>
+            <div class="big" id="day-num">Day 1 <span>of 90</span></div>
+            <div class="phase-now" id="phase-now">Set up and map</div>
+            <div class="next" id="next-check">Day 30 checkpoint in 29 days</div>
+          </div>
+          <div class="datefield">
+            <label class="label" for="start-date">Your start date</label>
+            <input type="date" id="start-date" value="2026-10-07">
+          </div>
+        </div>
+        <div class="strata-scroll">
+          <div class="strata" id="strata">
+            <div class="strata-row">
+              <div class="stratum" data-phase="0"><span class="mono">Days 1–14</span><b>Set up and map</b><span class="mono">Workspace, playbook, glossary, first five 1:1s</span></div>
+              <div class="stratum" data-phase="1"><span class="mono">Days 15–30</span><b>Run the rhythm</b><span class="mono">Debriefs, Friday reviews, questions bank</span></div>
+              <div class="stratum" data-phase="2"><span class="mono">Days 31–60</span><b>Build the craft</b><span class="mono">Spec template, feature trace, design review, mentor shortlist</span></div>
+              <div class="stratum" data-phase="3"><span class="mono">Days 61–90</span><b>Own and speak</b><span class="mono">First spec reviewed, speak up weekly, mentor agreed</span></div>
+            </div>
+            <div class="bench" style="left:33.333%">Day 30</div>
+            <div class="bench" style="left:66.667%">Day 60</div>
+            <div class="bench last" style="left:100%">Day 90</div>
+            <div class="stake" id="stake" style="left:0%"><span>You are here</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gaps and goals -->
+    <section class="block" id="why">
+      <div class="head">
+        <span class="label">Why it exists</span>
+        <h2>As an intern you got scoped tasks. Now you get ambiguous asks.</h2>
+        <p>Much of what matters on a product team is tacit or undocumented. Left alone, that means a slow ramp-up, tasks that drift or get redone, and a first Connects cycle where impact is hard to show. Each gap below has one goal and a date.</p>
+      </div>
+      <div class="gaps">
+        <div class="gap"><h3>Task execution</h3><p>No reliable method for going from a one-line ask to a finished outcome: who to talk to, what to read first, what done looks like.</p><p class="goal"><b>Run any task to done without being told how.</b> Every new task starts with a one-page brief, agreed with the requester within two working days.<span class="by">by day 60</span></p></div>
+        <div class="gap"><h3>Vocabulary</h3><p>Codenames and engineering terms (rings, flighting, ship room) slow you down in meetings, and asking in a group feels costly.</p><p class="goal"><b>Follow every meeting you attend.</b> No more than one unknown term per meeting, counted from your debrief notes.<span class="by">by day 45</span></p></div>
+        <div class="gap"><h3>Craft</h3><p>You don't yet know what a good spec looks like on this team, or how design and prototyping fit the cycle.</p><p class="goal"><b>Write a spec the team accepts in two review rounds or fewer.</b><span class="by">by day 90</span></p></div>
+        <div class="gap"><h3>Engineering literacy</h3><p>You can't yet follow how a feature moves from PR to production, so you can't judge timelines or push back credibly.</p><p class="goal"><b>Trace one shipped feature end to end</b> and talk it through with the engineer who owned it.<span class="by">by day 60</span></p></div>
+        <div class="gap"><h3>People</h3><p>You don't know who owns what, who to learn from, or who could mentor you.</p><p class="goal"><b>Know the people.</b> A map of at least 15 people across eng, design and PM, 8 or more 1:1s held, one mentor agreed.<span class="by">by day 75</span></p></div>
+        <div class="gap"><h3>Voice</h3><p>You hold back opinions and keep no record of what you've contributed.</p><p class="goal"><b>Show your impact.</b> A wins log with evidence links, ready to paste into Connects without reconstruction.<span class="by">every Friday</span></p></div>
+      </div>
+    </section>
+
+    <!-- Playbook -->
+    <section class="block" id="playbook">
+      <div class="head">
+        <span class="label">The task playbook</span>
+        <h2>Seven steps, scaled to the size of the ask.</h2>
+        <p>Every task goes through the same steps. The point is to catch misunderstandings before they cost a week. Pick a task size to see which steps apply.</p>
+      </div>
+      <div class="sizer">
+        <span class="label">Task size</span>
+        <div class="seg" role="group" aria-label="Task size">
+          <button type="button" id="size-small" data-size="small" aria-pressed="false">Under half a day</button>
+          <button type="button" id="size-week" data-size="week" aria-pressed="false">Up to a week</button>
+          <button type="button" id="size-big" data-size="big" aria-pressed="true">Over a week or cross-team</button>
+        </div>
+      </div>
+      <p class="size-note" id="size-note">All seven steps. Full brief, agreed in writing.</p>
+      <ol class="steps" id="steps">
+        <li class="step" data-step="1"><span class="n">1</span><div class="body"><h3>Capture the ask exactly <span class="skip">· skip</span></h3><p>Write down the words used, who asked, when, and any deadline mentioned. Don't interpret yet.</p></div></li>
+        <li class="step" data-step="2"><span class="n">2</span><div class="body"><h3>Find the why <span class="skip">· skip</span></h3><p>Ask the requester three questions, in person or in one message. What decision or outcome does this feed? Who else cares about the result? What does good look like, and by when? If they can't answer, that's a finding too: the task may not be ready.</p></div></li>
+        <li class="step" data-step="3"><span class="n">3</span><div class="body"><h3>Map what exists <span class="skip">· skip</span></h3><p>Search for prior work before doing anything new: Copilot across email, Teams, SharePoint and Loop, plus ADO for related work items. Note the two or three names that keep appearing.</p></div></li>
+        <li class="step" data-step="4"><span class="n">4</span><div class="body"><h3>Talk to two people <span class="skip">· skip</span></h3><p>One who knows the history, one who will be affected by the outcome, often an engineer or designer. Ask what's been tried, what constraint nobody writes down, and what they'd worry about.</p></div></li>
+        <li class="step" data-step="5"><span class="n">5</span><div class="body"><h3>Write the one-page brief <span class="skip">· skip</span><span class="light">· five lines in a chat message</span></h3><p>Send it to the requester: “Here's how I'm reading this. Anything wrong before I start?” This one message prevents most redone work.</p></div></li>
+        <li class="step" data-step="6"><span class="n">6</span><div class="body"><h3>Do the work in visible slices <span class="skip">· skip</span></h3><p>Share a rough draft at about 30% done, not 90%. Early feedback is cheap; late feedback is a rewrite.</p></div></li>
+        <li class="step" data-step="7"><span class="n">7</span><div class="body"><h3>Close the loop <span class="skip">· skip</span></h3><p>Send the result with a two-line summary of what changed and what's open. Log it in the Wins page with the link. Add new terms and people to Glossary and People.</p></div></li>
+      </ol>
+      <div class="callout"><p><b>Stuck for more than half a day on any step?</b> The question goes to the Questions bank and gets asked at the next 1:1 or in a short direct message. Being stuck silently is the failure mode, not asking.</p></div>
+    </section>
+
+    <!-- Brief template -->
+    <section class="block" id="brief">
+      <div class="two">
+        <div class="head">
+          <span class="label">Step 5 template</span>
+          <h2>The one-page brief.</h2>
+          <p>Ten fields. Keep it as a Loop component you can copy in under a minute, then send it before you start the work.</p>
+          <div class="sizes" style="margin-top:12px">
+            <div><span class="mono">&lt; half a day</span><span>Steps 1, 2 and 7 only. No brief.</span></div>
+            <div><span class="mono">Up to a week</span><span>All seven steps. The brief can be five lines in chat.</span></div>
+            <div><span class="mono">&gt; a week</span><span>The full brief, agreed in writing.</span></div>
+          </div>
+        </div>
+        <div class="brief">
+          <div class="brief-head">
+            <span class="label">Brief</span>
+            <button type="button" class="btn" id="copy-brief" data-copy-target="brief-text">Copy template</button>
+          </div>
+          <dl id="brief-fields">
+            <div class="row"><dt>The ask, in the requester's words</dt><dd></dd></div>
+            <div class="row"><dt>Requester and date</dt><dd></dd></div>
+            <div class="row"><dt>Why it matters (decision or outcome it feeds)</dt><dd></dd></div>
+            <div class="row"><dt>What done looks like</dt><dd></dd></div>
+            <div class="row"><dt>Deadline, and whether it's hard or soft</dt><dd></dd></div>
+            <div class="row"><dt>Out of scope</dt><dd></dd></div>
+            <div class="row"><dt>People involved and their stake</dt><dd></dd></div>
+            <div class="row"><dt>Prior work found</dt><dd></dd></div>
+            <div class="row"><dt>Risks and unknowns</dt><dd></dd></div>
+            <div class="row"><dt>First check-in date</dt><dd></dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rhythm -->
+    <section class="block" id="rhythm">
+      <div class="head">
+        <span class="label">The rhythm</span>
+        <h2>Small, fixed slots that keep the workspace alive.</h2>
+        <p>The system fails if it becomes overhead. Daily load is capped, and the weekly review is where rough notes get tidied.</p>
+      </div>
+      <div class="cap">
+        <strong>≤ 20 min</strong><span class="label">daily cap, including debriefs and prep</span>
+      </div>
+      <div class="rhythm-scroll">
+        <table class="rhythm">
+          <thead><tr><th scope="col">When</th><th scope="col">Time</th><th scope="col">What</th></tr></thead>
+          <tbody>
+            <tr><td>Start of day</td><td class="min"><span class="bar" style="width:20px"></span>10 min</td><td>Copilot catch-up prompt. Pick the one task that moves today.</td></tr>
+            <tr><td>Before key meetings</td><td class="min"><span class="bar" style="width:10px"></span>5 min</td><td>Prep prompt: context, last discussion, what you want out of it.</td></tr>
+            <tr><td>After key meetings</td><td class="min"><span class="bar" style="width:10px"></span>5 min</td><td>Debrief prompt. Terms to Glossary, actions to Tasks.</td></tr>
+            <tr><td>Friday</td><td class="min"><span class="bar" style="width:40px"></span>20 min</td><td>Weekly review: wins, held-back moments, next week's 1:1s.</td></tr>
+            <tr><td>Day 30, 60, 90</td><td class="min"><span class="bar" style="width:90px"></span>45 min</td><td>Checkpoint with your manager against the goals.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Workspace -->
+    <section class="block" id="workspace">
+      <div class="head">
+        <span class="label">The workspace</span>
+        <h2>Seven pages in one private Loop workspace.</h2>
+        <p>Copilot does the extraction. Each page has a clear source, so nothing needs to be remembered.</p>
+      </div>
+      <div class="pages">
+        <div class="page"><h3>Tasks</h3><p>One brief per task, using the playbook template.</p><div class="chips"><span class="chip">fed by: task playbook</span></div></div>
+        <div class="page"><h3>Glossary</h3><p>Term, what it means on this team, where you heard it, date.</p><div class="chips"><span class="chip">meeting debriefs</span><span class="chip">reading</span></div></div>
+        <div class="page"><h3>Debriefs</h3><p>Decisions, open questions and your actions, per meeting. One running page per recurring meeting.</p><div class="chips"><span class="chip">Teams Copilot recap</span></div></div>
+        <div class="page"><h3>People</h3><p>Name, role, what they own, what they care about, last 1:1, what you learned. Never assessments.</p><div class="chips"><span class="chip">1:1s</span><span class="chip">meetings</span><span class="chip">org chart</span></div></div>
+        <div class="page"><h3>Craft library</h3><p>Annotated best specs, your spec template, the feature trace write-up.</p><div class="chips"><span class="chip">manager</span><span class="chip">team SharePoint</span></div></div>
+        <div class="page"><h3>Questions bank</h3><p>Things you couldn't answer yourself, grouped by who to ask. Reviewed before every manager 1:1.</p><div class="chips"><span class="chip">every module</span></div></div>
+        <div class="page"><h3>Wins log</h3><p>Date, what moved, your part, evidence link. Paste straight into Connects.</p><div class="chips"><span class="chip">Friday review</span></div></div>
+      </div>
+    </section>
+
+    <!-- Prompts -->
+    <section class="block" id="prompts">
+      <div class="head">
+        <span class="label">Copilot prompts</span>
+        <h2>The prompts that do the extraction.</h2>
+        <p>Copy, fill the highlighted slots, run in Copilot Chat. Treat every answer as a draft and confirm anything important with a person.</p>
+      </div>
+      <div class="prompts">
+        <article class="prompt"><div class="prompt-head"><h3>Daily catch-up</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">Start of day · Copilot Chat</p><blockquote>What happened yesterday in my Teams channels and email that relates to <mark>[area]</mark>? Flag anything waiting on me, and any discussion I should know about but wasn't tagged in.</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Meeting prep</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">5 min before a key meeting</p><blockquote>I'm meeting <mark>[person]</mark> about <mark>[topic]</mark>. Summarise what's been said about this in the last two weeks across email, Teams and docs, and list open decisions.</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Meeting debrief</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">After a key meeting · on the Teams recap</p><blockquote>List the decisions made, every acronym or technical term used and what it means in context, action items for me, and points of disagreement with who raised them.</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Map what exists</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">Playbook step 3</p><blockquote>Find anything in my email, Teams, SharePoint and Loop about <mark>[topic]</mark> from the last 12 months: docs, decisions, people involved.</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Decode terms</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">Weekly · on the Glossary backlog</p><blockquote>Explain these terms as they're used in my team's docs and chats: <mark>[list]</mark>.</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Spec pattern</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">Once · on the team's two or three best specs</p><blockquote>Compare these specs. What structure do they share, and what questions do they answer that weaker specs skip?</blockquote></article>
+        <article class="prompt"><div class="prompt-head"><h3>Hard spec review</h3><button type="button" class="btn ghost copy">Copy</button></div><p class="when">Before any real reviewer sees a draft</p><blockquote>Review this draft spec as a sceptical engineering lead and as a designer. List every gap, unstated assumption and open question, most serious first.</blockquote></article>
+      </div>
+    </section>
+
+    <!-- Modules -->
+    <section class="block" id="modules">
+      <div class="head">
+        <span class="label">Modules</span>
+        <h2>What each gap needs, in practice.</h2>
+      </div>
+      <div class="modules">
+        <div class="module">
+          <span class="label">Glossary</span>
+          <h3>Log the local meaning, the same day.</h3>
+          <p>Codenames and acronyms often mean something specific to the team. Anything still unclear after the weekly decode goes to the Questions bank for your onboarding buddy. Learn these in week one if they come up:</p>
+          <div class="terms"><span>ring deployment</span><span>flighting</span><span>feature flags</span><span>ship room</span><span>bug bar</span><span>DRI</span><span>epic › feature › story › task</span><span>PR and code review</span><span>CI pipeline</span><span>telemetry</span><span>GA</span><span>private preview</span><span>public preview</span></div>
+        </div>
+        <div class="module">
+          <span class="label">Engineering literacy</span>
+          <h3>One feature trace beats any course.</h3>
+          <p>Pick one feature that shipped recently and follow it end to end. Then ask the engineer who owned it for 30 minutes: “What went wrong, and what would you change?”</p>
+          <div class="trace" aria-label="Feature trace path"><span>Spec</span><span>ADO items</span><span>PRs</span><span>Pipeline runs</span><span>Ring rollout</span><span>Telemetry</span><span>30 min with the owner</span></div>
+        </div>
+        <div class="module">
+          <span class="label">Specs, design and prototyping</span>
+          <h3>Learn the house style before you write.</h3>
+          <p>Ask your manager for the two or three best specs from the past year and turn their shared structure into your template. Find where design work lives (Figma, design reviews, the design system), ask the designer on your area when PMs should join, and sit in on one design review as an observer before contributing. Learn which stage uses a wireframe for discussion and which a prototype for testing.</p>
+        </div>
+        <div class="module">
+          <span class="label">People and mentors</span>
+          <h3>Two rings of 1:1s, then one specific ask.</h3>
+          <p><b>Weeks 1–4:</b> your direct engineering, design and PM counterparts. <b>Weeks 5–8:</b> people two steps out, chosen from names that keep turning up in playbook step 3. Each 1:1 carries one question you want answered and one about them.</p>
+          <p>By week 6, pick the person whose judgement you trust most and ask for a monthly 30 minutes with a purpose, such as “getting better at pushing back on scope”. Specific asks get yeses.</p>
+        </div>
+        <div class="module">
+          <span class="label">Voice and work style</span>
+          <h3>The Friday review, answered in writing.</h3>
+          <ol class="qs">
+            <li>What did I move forward this week? Link it.</li>
+            <li>Where did I have an opinion and not say it?</li>
+            <li>Who should I meet next week, and what do I want to learn?</li>
+          </ol>
+          <p>Question 2 builds voice. After four weeks, look for the pattern in which meetings, people and topics you go quiet on, then pick one setting a week to speak up in, with the point prepared.</p>
+        </div>
+        <div class="module">
+          <span class="label">Work style</span>
+          <h3>Protect the thinking time.</h3>
+          <p>Note when you do your best thinking and block two deep-work slots a week. Note how your manager prefers updates (async message, 1:1 or written doc) and match it.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Build order -->
+    <section class="block" id="build">
+      <div class="head">
+        <span class="label">Build order</span>
+        <h2>Habits first, extras only if earned.</h2>
+        <p>Nothing in P1 starts until the P0 habits are running. Tick items as you go; ticks stay in this browser only.</p>
+      </div>
+      <div class="tiers">
+        <div class="tier" data-tier="p0">
+          <div class="tier-head"><h3>P0 · week 1</h3><span class="count" data-count>0 / 10</span></div>
+          <ul class="checks">
+            <li class="grp">Task playbook in use</li>
+            <li><label><input type="checkbox" id="c-p0-1"><span>Brief template exists as a Loop component you can copy in under a minute</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-2"><span>Brief sent within two working days for any task over half a day</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-3"><span>No task closed without a Wins entry or a note saying why not</span></label></li>
+            <li class="grp">Meeting debriefs</li>
+            <li><label><input type="checkbox" id="c-p0-4"><span>Debrief prompt saved and reusable</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-5"><span>Terms reach the Glossary the same day</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-6"><span>Your actions appear in Tasks within 24 hours</span></label></li>
+            <li class="grp">Questions bank</li>
+            <li><label><input type="checkbox" id="c-p0-7"><span>Each question tagged with who to ask</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-8"><span>Bank reviewed before every manager 1:1</span></label></li>
+            <li class="grp">Friday review</li>
+            <li><label><input type="checkbox" id="c-p0-9"><span>20 minutes blocked, recurring, three questions answered in writing</span></label></li>
+            <li><label><input type="checkbox" id="c-p0-10"><span>At least one Wins entry a week, or a note on why not</span></label></li>
+          </ul>
+        </div>
+        <div class="tier" data-tier="p1">
+          <div class="tier-head"><h3>P1 · by week 4</h3><span class="count" data-count>0 / 4</span></div>
+          <ul class="checks">
+            <li><label><input type="checkbox" id="c-p1-1"><span>Spec template from the team's best specs, with a review prompt</span></label></li>
+            <li><label><input type="checkbox" id="c-p1-2"><span>Feature trace written up in the Craft library</span></label></li>
+            <li><label><input type="checkbox" id="c-p1-3"><span>People page with 10+ entries and a four-week 1:1 plan</span></label></li>
+            <li><label><input type="checkbox" id="c-p1-4"><span>Prep prompt used before every meeting where you're expected to contribute</span></label></li>
+          </ul>
+        </div>
+        <div class="tier" data-tier="p2">
+          <div class="tier-head"><h3>P2 · only if earned</h3><span class="count" data-count>0 / 3</span></div>
+          <ul class="checks">
+            <li><label><input type="checkbox" id="c-p2-1"><span><b>Power Automate</b> flow that drops Teams recaps into Debriefs</span></label></li>
+            <li><label><input type="checkbox" id="c-p2-2"><span><b>Personal Copilot agent</b> grounded in the workspace</span></label></li>
+            <li><label><input type="checkbox" id="c-p2-3"><span><b>Shared playbook</b> for the next intern cohort or new grads</span></label></li>
+          </ul>
+          <p class="gate">Gate: automate only what you've done by hand for a month and still skip.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics -->
+    <section class="block" id="metrics">
+      <div class="head">
+        <span class="label">Success metrics</span>
+        <h2>Is it running, and is it working?</h2>
+        <p>Checked at the day 30, 60 and 90 checkpoints. Leading indicators tell you the system is running; lagging ones tell you it's working.</p>
+      </div>
+      <div class="metrics-scroll">
+        <table class="metrics">
+          <thead><tr><th scope="col">Metric</th><th scope="col">Type</th><th scope="col">Day 30</th><th scope="col">Day 90</th><th scope="col">Measured from</th></tr></thead>
+          <tbody>
+            <tr><td>Tasks with a brief agreed within 2 days</td><td><span class="pill lead">Leading</span></td><td class="t">60%</td><td class="t t90">90%</td><td>Tasks page</td></tr>
+            <tr><td>Unknown terms per key meeting</td><td><span class="pill lead">Leading</span></td><td class="t">≤ 3</td><td class="t t90">≤ 1</td><td>Debriefs page</td></tr>
+            <tr><td>Friday reviews completed</td><td><span class="pill lead">Leading</span></td><td class="t">4 of 4</td><td class="t t90">12 of 13</td><td>Wins log</td></tr>
+            <tr><td>1:1s held</td><td><span class="pill lead">Leading</span></td><td class="t">5</td><td class="t t90">12</td><td>People page</td></tr>
+            <tr><td>Tasks redone because scope was misread</td><td><span class="pill lag">Lagging</span></td><td class="t">≤ 1</td><td class="t t90">0</td><td>Tasks page</td></tr>
+            <tr><td>Spec review rounds to approval</td><td><span class="pill lag">Lagging</span></td><td class="t">n/a</td><td class="t t90">≤ 2</td><td>Spec history</td></tr>
+            <tr><td>Mentor agreed</td><td><span class="pill lag">Lagging</span></td><td class="t">No</td><td class="t t90">Yes</td><td>People page</td></tr>
+            <tr><td>Manager's view of ramp-up</td><td><span class="pill lag">Lagging</span></td><td class="t">Asked</td><td class="t t90">On track or ahead</td><td>Day 90 checkpoint</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Risks and non-goals -->
+    <section class="block" id="risks">
+      <div class="head">
+        <span class="label">Risks and boundaries</span>
+        <h2>What could sink it, and what it won't try to do.</h2>
+      </div>
+      <div class="risks">
+        <div class="risk"><b>System becomes overhead and gets dropped by week 3</b><span class="lvl high"><i><b></b><b></b><b></b></i>High</span><span class="mit">Daily load capped at 20 minutes. Cut steps if leading metrics slip two weeks running.</span></div>
+        <div class="risk"><b>Copilot misreads a term or decision and you learn it wrong</b><span class="lvl med"><i><b></b><b></b><b></b></i>Medium</span><span class="mit">Treat Copilot output as a draft. Confirm anything important with a person.</span></div>
+        <div class="risk"><b>Asking for briefs feels bureaucratic to requesters</b><span class="lvl med"><i><b></b><b></b><b></b></i>Medium</span><span class="mit">Scale the brief to task size. Frame it as checking you've understood.</span></div>
+        <div class="risk"><b>Notes on colleagues read as judgement if seen</b><span class="lvl low"><i><b></b><b></b><b></b></i>Low</span><span class="mit">People page records what people own and care about, never assessments. Workspace stays private.</span></div>
+        <div class="risk"><b>Data leaves M365</b><span class="lvl low"><i><b></b><b></b><b></b></i>Low</span><span class="mit">Sanctioned tools only. No pasting internal content into external AI.</span></div>
+      </div>
+      <div class="nongoals">
+        <div><b>Building software</b><span>No custom app in the first 60 days.</span></div>
+        <div><b>Non-Microsoft AI tools</b><span>Meeting content and internal docs stay inside M365.</span></div>
+        <div><b>Replacing your manager or buddy</b><span>It prepares better questions for them.</span></div>
+        <div><b>Learning to code</b><span>Enough literacy to follow, question and estimate.</span></div>
+        <div><b>Perfect notes</b><span>Captures can be rough; Friday tidies them.</span></div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="label">The one rule</span>
+    <p class="rule-line">If the leading metrics slip two weeks running, cut steps before adding discipline.</p>
+    <p class="small">Groundwork · personal ramp-up system · spec v1, 7 October 2026</p>
+  </div>
+</footer>
+
+<textarea id="brief-text" hidden>One-page brief
+The ask, in the requester's words:
+Requester and date:
+Why it matters (decision or outcome it feeds):
+What done looks like:
+Deadline, and whether it's hard or soft:
+Out of scope:
+People involved and their stake:
+Prior work found:
+Risks and unknowns:
+First check-in date:</textarea>
+<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  var store = {
+    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+  };
+
+  // Day tracker
+  var PHASES = [
+    { name: "Set up and map", from: 1, to: 14 },
+    { name: "Run the rhythm", from: 15, to: 30 },
+    { name: "Build the craft", from: 31, to: 60 },
+    { name: "Own and speak", from: 61, to: 90 }
+  ];
+  var CHECKS = [30, 60, 90];
+  var input = document.getElementById("start-date");
+  var saved = store.get("gw-start");
+  if (saved) input.value = saved;
+
+  function todayUTC() {
+    var n = new Date();
+    return Date.UTC(n.getFullYear(), n.getMonth(), n.getDate());
+  }
+  function render() {
+    var parts = (input.value || "").split("-").map(Number);
+    if (parts.length !== 3 || !parts[0]) return;
+    var start = Date.UTC(parts[0], parts[1] - 1, parts[2]);
+    var raw = Math.floor((todayUTC() - start) / 86400000) + 1;
+    var day = Math.min(Math.max(raw, 1), 90);
+    var numEl = document.getElementById("day-num");
+    var phaseEl = document.getElementById("phase-now");
+    var nextEl = document.getElementById("next-check");
+    var idx = PHASES.findIndex(function (p) { return day >= p.from && day <= p.to; });
+
+    if (raw < 1) {
+      numEl.innerHTML = (1 - raw) + " <span>days to go</span>";
+      phaseEl.textContent = "Before day 1: block an afternoon for setup";
+      nextEl.textContent = "Starts " + input.value;
+    } else if (raw > 90) {
+      numEl.innerHTML = "Day 90+ <span>done</span>";
+      phaseEl.textContent = "Past the 90 days";
+      nextEl.textContent = "Keep what stuck; share the playbook";
+    } else {
+      numEl.innerHTML = "Day " + day + " <span>of 90</span>";
+      phaseEl.textContent = PHASES[idx].name;
+      var next = CHECKS.find(function (c) { return c >= day; });
+      var gap = next - day;
+      nextEl.textContent = gap === 0 ? "Day " + next + " checkpoint is today" : "Day " + next + " checkpoint in " + gap + (gap === 1 ? " day" : " days");
+    }
+    document.querySelectorAll(".stratum").forEach(function (el, i) {
+      el.classList.toggle("is-now", raw >= 1 && raw <= 90 && i === idx);
+    });
+    var pct = ((day - 0.5) / 90) * 100;
+    var stake = document.getElementById("stake");
+    stake.style.left = pct + "%";
+    stake.classList.toggle("flip", pct > 70);
+  }
+  input.addEventListener("change", function () { store.set("gw-start", input.value); render(); });
+  render();
+
+  // Playbook sizing
+  var SIZES = {
+    small: { on: [1, 2, 7], light: [], note: "Steps 1, 2 and 7 only. Capture it, find the why, close the loop." },
+    week: { on: [1, 2, 3, 4, 5, 6, 7], light: [5], note: "All seven steps, but the brief can be five lines in a chat message." },
+    big: { on: [1, 2, 3, 4, 5, 6, 7], light: [], note: "All seven steps. Full brief, agreed in writing." }
+  };
+  var sizeBtns = document.querySelectorAll(".seg button");
+  function setSize(key) {
+    var s = SIZES[key];
+    sizeBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.size === key)); });
+    document.querySelectorAll(".step").forEach(function (el) {
+      var n = Number(el.dataset.step);
+      el.classList.toggle("is-off", s.on.indexOf(n) === -1);
+      el.classList.toggle("is-light", s.light.indexOf(n) !== -1);
+    });
+    document.getElementById("size-note").textContent = s.note;
+    store.set("gw-size", key);
+  }
+  sizeBtns.forEach(function (b) { b.addEventListener("click", function () { setSize(b.dataset.size); }); });
+  setSize(SIZES[store.get("gw-size")] ? store.get("gw-size") : "big");
+
+  // Copy
+  var toast = document.getElementById("toast");
+  var toastTimer;
+  function showToast(msg) {
+    toast.textContent = msg; toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.hidden = true; }, 1800);
+  }
+  function fallbackSelect(node) {
+    var r = document.createRange(); r.selectNodeContents(node);
+    var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+  }
+  function copy(text, btn, selectNode) {
+    var label = btn.textContent;
+    function ok() { btn.textContent = "Copied"; btn.classList.add("done"); setTimeout(function () { btn.textContent = label; btn.classList.remove("done"); }, 1600); }
+    function fail() { if (selectNode) fallbackSelect(selectNode); showToast("Copy blocked here. Text selected: press Ctrl+C or ⌘C."); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, fail);
+    } else { fail(); }
+  }
+  document.querySelectorAll(".prompt .copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var q = btn.closest(".prompt").querySelector("blockquote");
+      copy(q.textContent.trim(), btn, q);
+    });
+  });
+  document.getElementById("copy-brief").addEventListener("click", function (e) {
+    copy(document.getElementById("brief-text").value, e.currentTarget, document.getElementById("brief-fields"));
+  });
+
+  // Checklists
+  document.querySelectorAll(".tier").forEach(function (tier) {
+    var boxes = tier.querySelectorAll("input[type=checkbox]");
+    var count = tier.querySelector("[data-count]");
+    function update() {
+      var n = 0; boxes.forEach(function (b) { if (b.checked) n++; });
+      count.textContent = n + " / " + boxes.length;
+    }
+    boxes.forEach(function (b) {
+      b.checked = store.get("gw-" + b.id) === "1";
+      b.addEventListener("change", function () { store.set("gw-" + b.id, b.checked ? "1" : "0"); update(); });
+    });
+    update();
+  });
+})();
+</script>
+</body>
+</html>
