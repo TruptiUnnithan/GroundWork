@@ -4,752 +4,867 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Groundwork</title>
-<meta name="description" content="A 90-day ramp-up system for new PMs: one private Loop workspace, a few Copilot prompts, 20 minutes a day.">
+<meta name="description" content="A 90-day ramp-up app for new PMs: lay one brick a day, run every task through the playbook, and keep your glossary, people, wins and Friday reviews in one place.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: a site survey. The 90 days are a ground section drawn to scale, checkpoints are benchmarks, flagging-tape pink marks "you are here" and anything to act on. Scrolling drives the motion. */
+/* Layout: an app on blueprint paper. Dark ink rail on the left, working surface on a faint survey grid.
+   The 90 days are a foundation of bricks, laid bottom-up; flagging pink marks today and the next action. */
 :root {
-  --ground: #eceff1;
+  --paper: #f3f5fa;
+  --gridline: rgba(47, 84, 190, 0.06);
   --surface: #ffffff;
-  --ink: #182026;
-  --muted: #56616a;
-  --rule: #c9d0d5;
-  --flag: #c81d66;
-  --flag-soft: #fbe3ee;
-  --stratum-1: #d9dfe3;
-  --stratum-2: #c6ced4;
-  --stratum-3: #b2bcc4;
-  --stratum-4: #9eaab3;
+  --ink: #111a2e;
+  --muted: #5b6478;
+  --rule: #dde2ec;
+  --rail: #111a2e;
+  --rail-ink: #e9edf6;
+  --rail-muted: #8d97ad;
+  --flag: #e0306f;
+  --flag-ink: #ffffff;
+  --flag-soft: #fde7ef;
+  --done: #1f9d6b;
+  --done-soft: #e2f5ec;
+  --phase-1: #c9d6f7;
+  --phase-2: #9db5f0;
+  --phase-3: #6f8fe4;
+  --phase-4: #4766c9;
+  --brick-open: #e6eaf3;
   --font-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
-  --font-body: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
-  --step--1: 0.8125rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.3125rem;
-  --step-2: 1.75rem;
-  --step-3: clamp(2.25rem, 5.5vw, 3.75rem);
-  --step-4: clamp(2.75rem, 8.5vw, 6rem);
-  --wrap: 72rem;
-  --head-h: 57px;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --r: 12px;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --ground: #13171a; --surface: #1b2125; --ink: #e6eaec; --muted: #9aa5ad; --rule: #2f383e;
-    --flag: #ff5c9d; --flag-soft: #3a1828;
-    --stratum-1: #252d33; --stratum-2: #2d363d; --stratum-3: #364048; --stratum-4: #404b54;
+    --paper: #0c1222; --gridline: rgba(120, 150, 240, 0.05); --surface: #151d31; --ink: #e8ecf5; --muted: #95a0b8; --rule: #253049;
+    --rail: #070b16; --rail-ink: #e8ecf5; --rail-muted: #7d88a1;
+    --flag: #ff4f8b; --flag-ink: #1a0610; --flag-soft: #3b1426; --done: #3ccf93; --done-soft: #12301f;
+    --phase-1: #22305a; --phase-2: #2e4383; --phase-3: #3f5db0; --phase-4: #5a7ce0; --brick-open: #1b2540;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --ground: #13171a; --surface: #1b2125; --ink: #e6eaec; --muted: #9aa5ad; --rule: #2f383e;
-  --flag: #ff5c9d; --flag-soft: #3a1828;
-  --stratum-1: #252d33; --stratum-2: #2d363d; --stratum-3: #364048; --stratum-4: #404b54;
+  --paper: #0c1222; --gridline: rgba(120, 150, 240, 0.05); --surface: #151d31; --ink: #e8ecf5; --muted: #95a0b8; --rule: #253049;
+  --rail: #070b16; --rail-ink: #e8ecf5; --rail-muted: #7d88a1;
+  --flag: #ff4f8b; --flag-ink: #1a0610; --flag-soft: #3b1426; --done: #3ccf93; --done-soft: #12301f;
+  --phase-1: #22305a; --phase-2: #2e4383; --phase-3: #3f5db0; --phase-4: #5a7ce0; --brick-open: #1b2540;
   color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
-  background: var(--ground);
+  background-color: var(--paper);
+  background-image: linear-gradient(var(--gridline) 1px, transparent 1px), linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+  background-size: 24px 24px;
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: var(--step-0);
-  line-height: 1.55;
+  font-size: 15px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-a { color: inherit; text-decoration-color: var(--flag); text-underline-offset: 3px; }
+button, input, textarea, select { font: inherit; color: inherit; }
+a { color: inherit; }
 :focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
-h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; text-wrap: balance; margin: 0; }
-h2 { font-size: var(--step-3); font-weight: 800; font-stretch: 112%; letter-spacing: -0.015em; }
-h3 { font-size: var(--step-1); font-weight: 700; }
-p { margin: 0; max-width: 60ch; }
-.label { font-family: var(--font-mono); font-size: var(--step--1); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
-.mono { font-family: var(--font-mono); font-size: var(--step--1); }
-.wrap { max-width: var(--wrap); margin-inline: auto; padding-inline: 16px; }
-@media (min-width: 40rem) { .wrap { padding-inline: 32px; } }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; line-height: 1.05; text-wrap: balance; }
+p { margin: 0; }
+.mono { font-family: var(--font-mono); font-size: 12px; }
+.label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 
-/* Header + scroll progress */
-.top {
-  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
-  background: color-mix(in srgb, var(--ground) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--rule);
+/* Shell */
+.app { display: grid; grid-template-columns: 236px minmax(0, 1fr); min-height: 100vh; }
+.rail { background: var(--rail); color: var(--rail-ink); position: sticky; top: 0; height: 100vh; padding: 22px 14px; display: flex; flex-direction: column; gap: 22px; }
+.brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 19px; color: var(--rail-ink); text-decoration: none; }
+.brand-day { margin: 0 8px; padding: 12px; border-radius: 10px; background: color-mix(in srgb, var(--rail-ink) 7%, transparent); display: grid; gap: 4px; }
+.brand-day b { font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: 22px; }
+.brand-day .mini { height: 4px; border-radius: 2px; background: color-mix(in srgb, var(--rail-ink) 14%, transparent); overflow: hidden; }
+.brand-day .mini i { display: block; height: 100%; background: var(--flag); }
+.brand-day span { color: var(--rail-muted); font-size: 12px; }
+.nav { display: grid; gap: 2px; }
+.nav a { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: var(--rail-muted); text-decoration: none; font-weight: 500; transition: background 0.15s, color 0.15s; }
+.nav a:hover { color: var(--rail-ink); background: color-mix(in srgb, var(--rail-ink) 6%, transparent); }
+.nav a[aria-current="page"] { color: var(--rail-ink); background: color-mix(in srgb, var(--rail-ink) 11%, transparent); }
+.nav a[aria-current="page"] svg { color: var(--flag); }
+.nav svg { width: 18px; height: 18px; flex: none; }
+.nav .count { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: var(--rail-muted); }
+.rail-foot { margin-top: auto; display: grid; gap: 8px; padding: 0 8px; }
+.rail-foot label { color: var(--rail-muted); font-size: 12px; display: grid; gap: 4px; }
+.rail-foot input { background: transparent; border: 1px solid color-mix(in srgb, var(--rail-ink) 18%, transparent); color: var(--rail-ink); border-radius: 6px; padding: 6px 8px; font-family: var(--font-mono); font-size: 12px; color-scheme: dark; }
+
+.main { padding: 32px clamp(16px, 4vw, 48px) 80px; min-width: 0; }
+.view { max-width: 68rem; margin: 0 auto; display: grid; gap: 22px; animation: in 0.35s cubic-bezier(.2,.8,.2,1); }
+main[data-still] .view { animation: none; }
+@keyframes in { from { opacity: 0.3; transform: translateY(8px); } }
+.view-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; }
+.view-head h1 { font-size: clamp(30px, 4.5vw, 46px); font-weight: 900; font-stretch: 118%; letter-spacing: -0.02em; }
+.view-head p { color: var(--muted); margin-top: 6px; max-width: 52ch; }
+
+@media (max-width: 54rem) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; height: auto; padding: 10px 12px; flex-direction: row; align-items: center; gap: 10px; }
+  .brand { padding: 0; font-size: 16px; }
+  .brand .wordmark, .brand-day, .rail-foot { display: none; }
+  .nav { display: flex; overflow-x: auto; scrollbar-width: none; gap: 2px; }
+  .nav a { padding: 7px 10px; white-space: nowrap; font-size: 14px; }
+  .nav .count { display: none; }
+  .main { padding-top: 22px; }
 }
-.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 14px; }
-.mark { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 1.125rem; text-decoration: none; display: flex; align-items: center; gap: 10px; }
-.nav { display: flex; gap: 4px; font-family: var(--font-mono); font-size: var(--step--1); }
-.nav a { text-decoration: none; color: var(--muted); white-space: nowrap; padding: 4px 10px; border-radius: 999px; transition: background 0.2s, color 0.2s; }
-.nav a:hover { color: var(--ink); }
-.nav a.active { background: var(--ink); color: var(--ground); }
-@media (max-width: 50rem) { .nav { display: none; } }
-.progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--flag); transform-origin: 0 50%; transform: scaleX(0); }
 
-/* Hero */
-.hero { padding-block: 64px 24px; display: grid; gap: 32px; }
-.hero h1 { font-size: var(--step-4); font-weight: 900; font-stretch: 125%; letter-spacing: -0.03em; line-height: 0.93; max-width: 13ch; }
-.hero h1 em { font-style: normal; color: var(--flag); }
-.hero .lede { font-size: var(--step-1); line-height: 1.4; max-width: 34ch; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { font-family: var(--font-mono); font-size: 0.75rem; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); }
+/* Primitives */
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.card-head h2 { font-size: 17px; font-weight: 700; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--rule); background: var(--surface); padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap; transition: transform 0.12s, background 0.15s, border-color 0.15s; text-decoration: none; }
+.btn:hover { border-color: var(--ink); }
+.btn:active { transform: scale(0.97); }
+.btn.primary { background: var(--flag); color: var(--flag-ink); border-color: var(--flag); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.dark { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.btn.small { padding: 5px 10px; font-size: 13px; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--muted); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--rule); }
+.btn.ok { background: var(--done-soft); border-color: var(--done); color: var(--done); }
+.icon-btn { border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 6px; font-size: 16px; line-height: 1; }
+.icon-btn:hover { color: var(--flag); background: var(--flag-soft); }
+.chip { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-mono); font-size: 11px; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); background: var(--surface); white-space: nowrap; }
+.chip.ex { border-style: dashed; }
+.chip.flag { background: var(--flag-soft); color: var(--flag); border-color: transparent; }
+.chip.ok { background: var(--done-soft); color: var(--done); border-color: transparent; }
+button.chip { cursor: pointer; }
+button.chip:hover { border-color: var(--ink); color: var(--ink); }
+.field { display: grid; gap: 5px; min-width: 0; }
+.field > span { font-size: 13px; font-weight: 600; }
+.field small { color: var(--muted); font-size: 12px; }
+.input { width: 100%; border: 1px solid var(--rule); background: var(--paper); border-radius: 8px; padding: 9px 11px; font-size: 14px; transition: border-color 0.15s, background 0.15s; }
+.input:focus { outline: none; border-color: var(--ink); background: var(--surface); }
+textarea.input { resize: vertical; min-height: 64px; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.grid-2 { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+.empty { color: var(--muted); font-size: 14px; padding: 18px; border: 1px dashed var(--rule); border-radius: 10px; text-align: center; }
+.meter { height: 6px; border-radius: 3px; background: var(--brick-open); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--ink); border-radius: 3px; transition: width 0.5s cubic-bezier(.2,.8,.2,1); }
+.meter.flag i { background: var(--flag); }
+.meter.ok i { background: var(--done); }
+.ex-note { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; padding: 10px 14px; border-radius: 10px; border: 1px dashed var(--rule); font-size: 13px; color: var(--muted); background: var(--surface); }
 
-/* Day tracker */
-.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 20px; display: grid; gap: 20px; }
-@media (min-width: 40rem) { .card { padding: 28px; } }
-.today { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
-.today .big { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: clamp(2.5rem, 7vw, 4rem); line-height: 1; font-variant-numeric: tabular-nums; }
-.today .big span { color: var(--muted); font-weight: 500; font-size: 0.42em; font-stretch: 100%; }
-.today .phase-now { font-family: var(--font-display); font-weight: 700; font-size: var(--step-1); }
-.today .next { color: var(--flag); font-family: var(--font-mono); font-size: var(--step--1); }
-.datefield { display: grid; gap: 4px; }
-.datefield input { font: inherit; font-family: var(--font-mono); font-size: 0.9375rem; padding: 8px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--ground); color: var(--ink); }
-.strata-scroll { overflow-x: auto; }
-.strata { position: relative; min-width: 34rem; padding-top: 28px; padding-bottom: 34px; }
-.strata-row { display: grid; grid-template-columns: 14fr 16fr 30fr 30fr; height: 76px; border-top: 2px solid var(--ink); }
-.stratum { padding: 10px 12px; display: grid; align-content: start; gap: 2px; border-right: 1px dashed var(--rule); min-width: 0; transition: box-shadow 0.3s; }
-.stratum:nth-child(1) { background: var(--stratum-1); }
-.stratum:nth-child(2) { background: var(--stratum-2); }
-.stratum:nth-child(3) { background: var(--stratum-3); }
-.stratum:nth-child(4) { background: var(--stratum-4); border-right: 0; }
-.stratum b { font-family: var(--font-display); font-weight: 700; font-size: 0.9375rem; line-height: 1.2; }
-.stratum .mono { opacity: 0.75; }
-.stratum.is-now { box-shadow: inset 0 0 0 2px var(--flag); }
-.bench { position: absolute; bottom: 0; transform: translateX(-50%); display: grid; justify-items: center; gap: 4px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
-.bench::before { content: ""; width: 10px; height: 10px; background: var(--ink); transform: rotate(45deg); }
-.bench.last { transform: translateX(-100%); justify-items: end; }
-.stake { position: absolute; top: 0; bottom: 30px; width: 2px; background: var(--flag); transform: translateX(-1px); transition: left 0.6s cubic-bezier(.2,.8,.2,1); }
-.stake::before { content: ""; position: absolute; top: 0; left: 2px; width: 22px; height: 14px; background: var(--flag); clip-path: polygon(0 0, 100% 50%, 0 100%); }
-.stake span { position: absolute; top: -2px; left: 28px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--flag); white-space: nowrap; font-weight: 500; }
-.stake.flip span { left: auto; right: 8px; }
-.stake.flip::before { left: auto; right: 2px; clip-path: polygon(100% 0, 0 50%, 100% 100%); }
+/* Today */
+.today-grid { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+.today-grid > * { grid-column: span 12; }
+@media (min-width: 64rem) {
+  .span-8 { grid-column: span 8 !important; }
+  .span-4 { grid-column: span 4 !important; }
+  .span-6 { grid-column: span 6 !important; }
+}
+.hello { display: grid; gap: 4px; }
+.hello .big { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: clamp(40px, 7vw, 68px); line-height: 0.95; letter-spacing: -0.025em; }
+.hello .big em { font-style: normal; color: var(--flag); }
 
-/* Sections */
-section.block { padding-block: 96px 0; display: grid; gap: 32px; scroll-margin-top: var(--head-h); }
-.head { display: grid; gap: 10px; }
-.head p { color: var(--muted); }
+.wall-card { gap: 18px; }
+.wall { display: grid; gap: 4px; }
+.course { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); gap: 4px; }
+.wall { overflow: hidden; padding: 4px 0; }
+.course.offset { margin-left: calc((100% - 56px) / 30 + 2px); margin-right: calc(-1 * ((100% - 56px) / 30 + 2px)); }
+.brick { position: relative; height: 26px; border-radius: 3px; border: 0; padding: 0; cursor: pointer; background: var(--brick-open); transition: transform 0.15s, box-shadow 0.15s; }
+.brick:hover { transform: translateY(-2px); box-shadow: 0 3px 0 0 var(--rule); }
+.brick.p1.laid { background: var(--phase-1); }
+.brick.p2.laid { background: var(--phase-2); }
+.brick.p3.laid { background: var(--phase-3); }
+.brick.p4.laid { background: var(--phase-4); }
+.brick.past:not(.laid) { background: repeating-linear-gradient(135deg, var(--brick-open) 0 4px, transparent 4px 8px); box-shadow: inset 0 0 0 1px var(--rule); }
+.brick.today, .brick.today.laid { background: var(--flag); box-shadow: 0 0 0 3px var(--flag-soft); animation: pulse 2.4s ease-in-out infinite; }
+.brick.today.laid::before { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: var(--flag-ink); font-size: 13px; font-weight: 700; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 6px var(--flag-soft); } }
+.brick.gate::after { content: ""; position: absolute; top: 50%; right: -6px; width: 8px; height: 8px; background: var(--ink); transform: translateY(-50%) rotate(45deg); z-index: 1; }
+.brick.sel { outline: 2px solid var(--ink); outline-offset: 1px; }
+.wall-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted); align-items: center; }
+.wall-legend i { display: inline-block; width: 14px; height: 10px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
+.phases { display: grid; grid-template-columns: 14fr 16fr 30fr 30fr; gap: 4px; }
+.phases div { border-top: 3px solid; padding-top: 6px; font-size: 12px; min-width: 0; }
+.phases div b { display: block; font-family: var(--font-display); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.phases div span { color: var(--muted); font-family: var(--font-mono); font-size: 11px; }
+.phases div:nth-child(1) { border-color: var(--phase-1); }
+.phases div:nth-child(2) { border-color: var(--phase-2); }
+.phases div:nth-child(3) { border-color: var(--phase-3); }
+.phases div:nth-child(4) { border-color: var(--phase-4); }
+.phases div.now b { color: var(--flag); }
+.brick-info { min-height: 22px; font-size: 13px; color: var(--muted); }
+.brick-info b { color: var(--ink); }
 
-/* Goals */
-.goals { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
-.goal { background: var(--surface); padding: 20px; display: grid; gap: 10px; align-content: space-between; min-height: 9.5rem; }
-.goal .label { color: var(--muted); }
-.goal p { font-family: var(--font-display); font-weight: 700; font-size: 1.1875rem; line-height: 1.2; }
-.goal .by { font-family: var(--font-mono); font-size: var(--step--1); color: var(--flag); }
+.ritual { display: grid; gap: 8px; }
+.ritual button { display: grid; grid-template-columns: 28px 1fr auto; gap: 12px; align-items: center; text-align: left; padding: 12px; border-radius: 10px; border: 1px solid var(--rule); background: var(--paper); cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.ritual button:hover { border-color: var(--ink); }
+.ritual .tick { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--rule); display: grid; place-items: center; color: transparent; transition: all 0.2s; }
+.ritual button[aria-pressed="true"] { background: var(--done-soft); border-color: var(--done); }
+.ritual button[aria-pressed="true"] .tick { background: var(--done); border-color: var(--done); color: var(--surface); }
+.ritual b { display: block; font-weight: 600; }
+.ritual small { color: var(--muted); }
+.ritual .mins { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.check-card .big-num { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 56px; line-height: 1; }
+.check-card .big-num span { font-size: 16px; font-weight: 500; font-stretch: 100%; color: var(--muted); }
+.focus-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.focus-list li { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+.focus-list li::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--flag); flex: none; }
+.quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.quick .btn { justify-content: flex-start; padding: 12px; }
 
-/* Playbook: pinned horizontal track */
-.sizer { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
-.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--surface); flex-wrap: wrap; }
-.seg button { font: inherit; font-family: var(--font-mono); font-size: var(--step--1); border: 0; background: transparent; color: var(--muted); padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: background 0.2s, color 0.2s; }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
-.size-note { font-family: var(--font-mono); font-size: var(--step--1); color: var(--flag); }
-.pin { padding-top: 96px; scroll-margin-top: var(--head-h); }
-.pin-sticky { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
-.pin-head { display: grid; gap: 20px; }
-.track { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
-.step { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 22px; display: grid; gap: 10px; align-content: start; transition: opacity 0.25s, transform 0.25s; }
-.step .n { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 3rem; line-height: 0.9; color: var(--flag); font-variant-numeric: tabular-nums; }
-.step h3 { font-size: 1.25rem; }
-.step p { font-size: 0.9375rem; color: var(--muted); }
-.step .tag { font-family: var(--font-mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); display: none; }
-.step.is-off { opacity: 0.3; }
-.step.is-off .n { color: var(--muted); }
-.step.is-off .tag.skip { display: block; }
-.step.is-light .tag.light { display: block; color: var(--flag); }
-.pin-bar { height: 2px; background: var(--rule); position: relative; overflow: hidden; display: none; }
-.pin-bar i { position: absolute; inset: 0; background: var(--flag); transform-origin: 0 50%; transform: scaleX(0); }
-.stuck { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 0.9375rem; }
-.stuck b { font-family: var(--font-display); }
+/* Tasks */
+.size-pick { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); }
+.size-pick label { position: relative; display: grid; gap: 2px; padding: 12px 14px; border: 1px solid var(--rule); border-radius: 10px; cursor: pointer; background: var(--paper); transition: border-color 0.15s, background 0.15s; }
+.size-pick input { position: absolute; opacity: 0; pointer-events: none; }
+.size-pick label:has(input:checked) { border-color: var(--flag); background: var(--flag-soft); }
+.size-pick label:has(input:focus-visible) { outline: 2px solid var(--flag); outline-offset: 2px; }
+.size-pick b { font-size: 14px; }
+.size-pick small { color: var(--muted); font-size: 12px; }
+.task-list { display: grid; gap: 10px; }
+.task { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; align-items: center; padding: 16px 18px; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--r); text-decoration: none; transition: border-color 0.15s, transform 0.15s; }
+.task:hover { border-color: var(--ink); transform: translateX(2px); }
+.task h3 { font-family: var(--font-body); font-weight: 600; font-size: 16px; }
+.task .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.dots { display: flex; gap: 4px; }
+.dots i { width: 22px; height: 6px; border-radius: 3px; background: var(--brick-open); }
+.dots i.on { background: var(--ink); }
+.dots i.cur { background: var(--flag); }
+.dots i.na { opacity: 0.3; background: transparent; box-shadow: inset 0 0 0 1px var(--rule); }
 
-/* Brief */
-.brief { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
-.brief-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--rule); }
-.brief-head h3 { font-size: 1.125rem; }
-.brief ol { margin: 0; padding: 6px 18px 14px; list-style: none; columns: 2 16rem; column-gap: 32px; counter-reset: f; }
-.brief li { break-inside: avoid; padding-block: 8px; border-bottom: 1px dotted var(--rule); font-size: 0.9375rem; counter-increment: f; display: flex; gap: 10px; }
-.brief li::before { content: counter(f, decimal-leading-zero); font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); padding-top: 3px; }
-.btn { font: inherit; font-family: var(--font-mono); font-size: var(--step--1); border: 1px solid var(--ink); background: var(--ink); color: var(--ground); padding: 7px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: background 0.2s, border-color 0.2s; }
-.btn:hover { border-color: var(--flag); }
-.btn.done { background: var(--flag); border-color: var(--flag); color: var(--surface); }
+/* Wizard */
+.wizard { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 60rem) { .wizard { grid-template-columns: 15rem minmax(0, 1fr); align-items: start; } }
+.stepper { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+@media (min-width: 60rem) { .stepper { flex-direction: column; position: sticky; top: 24px; } }
+.stepper button { width: 100%; display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; text-align: left; padding: 9px 10px; border: 1px solid transparent; border-radius: 10px; background: transparent; cursor: pointer; white-space: nowrap; color: var(--muted); transition: background 0.15s; }
+.stepper button:hover { background: var(--surface); }
+.stepper .num { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 14px; background: var(--brick-open); color: var(--muted); }
+.stepper button.done .num { background: var(--ink); color: var(--paper); }
+.stepper button[aria-current="step"] { background: var(--surface); border-color: var(--rule); color: var(--ink); font-weight: 600; }
+.stepper button[aria-current="step"] .num { background: var(--flag); color: var(--flag-ink); }
+.stepper button.na { opacity: 0.35; text-decoration: line-through; }
+.step-panel { gap: 18px; }
+.step-panel .step-title { display: flex; gap: 14px; align-items: start; }
+.step-panel .step-title .n { font-family: var(--font-display); font-weight: 900; font-stretch: 125%; font-size: 52px; line-height: 0.85; color: var(--flag); }
+.step-panel h2 { font-size: 26px; font-weight: 800; font-stretch: 110%; }
+.step-panel .hint { color: var(--muted); margin-top: 4px; }
+.tip { display: flex; gap: 10px; padding: 12px 14px; border-radius: 10px; background: var(--paper); font-size: 14px; }
+.tip b { color: var(--flag); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; padding-top: 2px; white-space: nowrap; }
+.brief-doc { border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.brief-doc div { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 12px; padding: 9px 14px; border-bottom: 1px solid var(--rule); font-size: 14px; }
+.brief-doc div:last-child { border-bottom: 0; }
+.brief-doc dt { color: var(--muted); font-size: 12px; font-weight: 600; padding-top: 2px; }
+.brief-doc dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.brief-doc dd.blank { color: var(--flag); font-family: var(--font-mono); font-size: 12px; }
+@media (max-width: 36rem) { .brief-doc div { grid-template-columns: 1fr; gap: 2px; } }
+.step-nav { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--rule); padding-top: 16px; }
 
-/* Rhythm */
-.rhythm { display: grid; gap: 0; border-top: 1px solid var(--rule); }
-.beat { display: grid; grid-template-columns: minmax(9rem, 13rem) 1fr; gap: 6px 24px; padding-block: 16px; border-bottom: 1px solid var(--rule); align-items: center; }
-.beat b { font-family: var(--font-display); font-weight: 700; }
-.beat .meter { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.beat .fill { height: 10px; background: var(--ink); border-radius: 2px; flex: none; transform-origin: 0 50%; }
-.beat .fill.week { background: var(--muted); }
-.beat .fill.gate { background: var(--flag); }
-.beat .mono { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.beat .what { grid-column: 2; color: var(--muted); font-size: 0.9375rem; }
-@media (max-width: 36rem) { .beat { grid-template-columns: 1fr; } .beat .what { grid-column: 1; } }
+/* Glossary */
+.terms-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); }
+.term { perspective: 900px; height: 150px; border: 0; padding: 0; background: transparent; cursor: pointer; text-align: left; position: relative; }
+.term .face { position: absolute; inset: 0; border-radius: var(--r); border: 1px solid var(--rule); background: var(--surface); padding: 16px; display: grid; align-content: space-between; gap: 8px; backface-visibility: hidden; transition: transform 0.5s cubic-bezier(.2,.8,.2,1); overflow: hidden; }
+.term .back { transform: rotateY(180deg); background: var(--ink); color: var(--paper); border-color: var(--ink); align-content: start; }
+.term.flipped .front { transform: rotateY(-180deg); }
+.term.flipped .back { transform: rotateY(0); }
+.term .front b { font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: 21px; line-height: 1.1; }
+.term .back p { font-size: 14px; overflow-y: auto; }
+.term .back .label { color: color-mix(in srgb, var(--paper) 60%, transparent); }
+.term .meaning-missing { color: var(--flag); font-family: var(--font-mono); font-size: 11px; }
 
-/* Workspace */
-.pages { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); }
-.page { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 18px; display: grid; gap: 6px; align-content: start; transition: transform 0.2s, border-color 0.2s; }
-.page:hover { transform: translateY(-3px); border-color: var(--ink); }
-.page h3 { font-size: 1.125rem; }
-.page p { font-size: 0.9375rem; }
-.page .src { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
-.page .src::before { content: "← "; color: var(--flag); }
+/* People */
+.rings { display: grid; gap: 22px; }
+.ring-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.ring-head h2 { font-size: 18px; }
+.people-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.person { gap: 10px; }
+.person-top { display: flex; gap: 12px; align-items: center; }
+.avatar { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-stretch: 112%; background: var(--phase-1); color: var(--ink); flex: none; }
+.person h3 { font-family: var(--font-body); font-size: 15px; font-weight: 600; }
+.person .role { color: var(--muted); font-size: 13px; }
+.person dl { margin: 0; display: grid; gap: 6px; font-size: 13px; }
+.person dt { font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+.person dd { margin: 0; }
+.star { border: 0; background: transparent; cursor: pointer; font-size: 18px; color: var(--rule); margin-left: auto; padding: 2px; }
+.star[aria-pressed="true"] { color: var(--flag); }
 
-/* Tabs (prompts, modules) */
-.tabs { display: grid; gap: 16px; }
-@media (min-width: 52rem) { .tabs { grid-template-columns: 15rem 1fr; gap: 24px; align-items: start; } }
-.tablist { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
-@media (min-width: 52rem) { .tablist { flex-direction: column; overflow: visible; } }
-.tablist button { font: inherit; font-family: var(--font-display); font-weight: 600; font-size: 0.9375rem; text-align: left; border: 1px solid var(--rule); background: var(--surface); color: var(--muted); padding: 10px 14px; border-radius: 6px; cursor: pointer; white-space: nowrap; display: flex; justify-content: space-between; gap: 12px; transition: color 0.2s, border-color 0.2s, background 0.2s; }
-.tablist button .mono { font-weight: 400; font-size: 0.6875rem; color: var(--muted); }
-.tablist button[aria-selected="true"] { color: var(--ground); background: var(--ink); border-color: var(--ink); }
-.tablist button[aria-selected="true"] .mono { color: var(--ground); opacity: 0.7; }
-.panel { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 24px; display: grid; gap: 16px; align-content: start; min-width: 0; animation: panel-in 0.35s cubic-bezier(.2,.8,.2,1); }
-@keyframes panel-in { from { opacity: 0.4; transform: translateY(8px); } }
-.panel-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; flex-wrap: wrap; }
-.panel-head h3 { font-size: var(--step-2); font-stretch: 105%; }
-.panel blockquote { margin: 0; font-family: var(--font-mono); font-size: 0.9375rem; line-height: 1.6; background: var(--ground); padding: 16px 18px; border-radius: 6px; overflow-wrap: anywhere; }
-.panel blockquote mark { background: var(--flag-soft); color: var(--flag); padding: 0 3px; border-radius: 2px; }
-.panel .when { font-family: var(--font-mono); font-size: var(--step--1); color: var(--flag); }
-.terms { display: flex; flex-wrap: wrap; gap: 6px; }
-.terms span { font-family: var(--font-mono); font-size: 0.8125rem; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--ground); }
-.trace { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: var(--font-mono); font-size: 0.8125rem; }
-.trace span { padding: 6px 10px; border: 1px solid var(--rule); border-radius: 4px; background: var(--ground); }
-.trace i { color: var(--flag); font-style: normal; }
-.trace span:last-child { background: var(--ink); color: var(--ground); border-color: var(--ink); }
-.list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0; }
-.list li { display: grid; grid-template-columns: 6.5rem 1fr; gap: 12px; padding-block: 10px; border-bottom: 1px solid var(--rule); }
-.list li:last-child { border-bottom: 0; }
-.list .mono { color: var(--muted); padding-top: 2px; }
+/* Wins + reviews + questions */
+.timeline { display: grid; gap: 0; position: relative; padding-left: 22px; }
+.timeline::before { content: ""; position: absolute; left: 6px; top: 8px; bottom: 8px; width: 2px; background: var(--rule); }
+.win { position: relative; padding: 0 0 16px; }
+.win::before { content: ""; position: absolute; left: -21px; top: 18px; width: 12px; height: 12px; border-radius: 3px; background: var(--done); transform: rotate(45deg); }
+.win .card { gap: 6px; }
+.win .when { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.win h3 { font-family: var(--font-body); font-size: 16px; font-weight: 600; }
+.win a { color: var(--flag); font-size: 13px; overflow-wrap: anywhere; }
+.qa { display: grid; gap: 14px; }
+.qa .field > span { font-size: 15px; }
+.qa .field > span em { font-style: normal; color: var(--flag); font-family: var(--font-mono); font-size: 12px; margin-right: 6px; }
+.past { display: grid; gap: 10px; }
+.past details { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 16px; }
+.past summary { cursor: pointer; font-weight: 600; }
+.past dl { margin: 10px 0 0; display: grid; gap: 8px; font-size: 14px; }
+.past dt { font-family: var(--font-mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.past dd { margin: 0; white-space: pre-wrap; }
+.qgroup { display: grid; gap: 8px; }
+.q { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 14px; background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; }
+.q input { width: 18px; height: 18px; accent-color: var(--done); margin: 0; }
+.q.asked span { color: var(--muted); text-decoration: line-through; }
 
-/* Build order */
-.tiers { display: grid; gap: 12px; }
-@media (min-width: 56rem) { .tiers { grid-template-columns: 1.3fr 1fr 1fr; } }
-.tier { background: var(--surface); border: 1px solid var(--rule); border-radius: 8px; padding: 20px; display: grid; gap: 14px; align-content: start; }
-.tier-head { display: grid; gap: 8px; }
-.tier-head .row { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.tier-head h3 { font-size: 1.125rem; }
-.tier .count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); font-variant-numeric: tabular-nums; }
-.meter-bar { height: 4px; border-radius: 2px; background: var(--ground); overflow: hidden; }
-.meter-bar i { display: block; height: 100%; width: 0; background: var(--flag); transition: width 0.4s cubic-bezier(.2,.8,.2,1); }
+/* Prompts */
+.prompt-layout { display: grid; gap: 16px; }
+@media (min-width: 60rem) { .prompt-layout { grid-template-columns: 16rem minmax(0, 1fr); align-items: start; } }
+.prompt-tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+@media (min-width: 60rem) { .prompt-tabs { flex-direction: column; } }
+.prompt-tabs button { display: flex; justify-content: space-between; gap: 12px; align-items: center; text-align: left; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--rule); background: var(--surface); cursor: pointer; font-weight: 600; font-size: 14px; white-space: nowrap; color: var(--muted); }
+.prompt-tabs button span { font-family: var(--font-mono); font-size: 11px; font-weight: 400; }
+.prompt-tabs button[aria-selected="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.prompt-out { font-family: var(--font-mono); font-size: 14px; line-height: 1.65; background: var(--paper); border-radius: 10px; padding: 16px 18px; overflow-wrap: anywhere; }
+.prompt-out mark { background: var(--flag-soft); color: var(--flag); border-radius: 3px; padding: 0 3px; }
+.prompt-out .filled { background: var(--done-soft); color: var(--done); border-radius: 3px; padding: 0 3px; }
+
+/* Progress */
+.goal-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); }
+.goal { gap: 10px; }
+.goal .num { font-family: var(--font-display); font-weight: 900; font-stretch: 118%; font-size: 36px; line-height: 1; font-variant-numeric: tabular-nums; }
+.goal .num.word { font-size: 26px; padding-block: 5px; overflow-wrap: anywhere; }
+.goal .num span { font-size: 15px; font-weight: 500; font-stretch: 100%; color: var(--muted); }
+.goal p { font-size: 14px; }
+.goal .by { font-family: var(--font-mono); font-size: 11px; color: var(--flag); }
+.tiers { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); }
 .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.checks label { display: grid; grid-template-columns: 20px 1fr; gap: 10px; cursor: pointer; font-size: 0.9375rem; line-height: 1.4; }
+.checks label { display: grid; grid-template-columns: 20px 1fr; gap: 10px; cursor: pointer; font-size: 14px; line-height: 1.4; }
 .checks input { width: 18px; height: 18px; margin: 1px 0 0; accent-color: var(--flag); }
-.checks input:checked + span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--rule); }
-.tier .gate { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+.checks input:checked + span { color: var(--muted); text-decoration: line-through; }
 
-/* Metrics */
-.metrics { display: grid; gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); }
-.metric { background: var(--surface); padding: 18px 20px; display: grid; gap: 10px; align-content: space-between; }
-.metric p { font-size: 0.9375rem; }
-.metric .vals { display: flex; align-items: baseline; gap: 10px; font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
-.metric .vals s { text-decoration: none; color: var(--muted); font-weight: 500; font-size: 1rem; }
-.metric .vals i { font-style: normal; color: var(--flag); font-size: 1rem; }
-.metric .kind { font-family: var(--font-mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
-.metric.lead .kind { color: var(--ink); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 16px; border-radius: 10px; font-size: 14px; font-weight: 500; z-index: 50; box-shadow: 0 10px 30px rgba(0,0,0,0.18); animation: toast 0.3s cubic-bezier(.2,.8,.2,1); max-width: calc(100vw - 32px); }
+@keyframes toast { from { opacity: 0; transform: translate(-50%, 10px); } }
+.confetti { position: fixed; pointer-events: none; z-index: 60; width: 10px; height: 6px; border-radius: 1px; animation: drop 0.9s cubic-bezier(.2,.7,.4,1) forwards; }
+@keyframes drop { to { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0; } }
 
-/* Guardrails */
-.guard { display: grid; gap: 12px; }
-@media (min-width: 52rem) { .guard { grid-template-columns: 1fr 1fr; gap: 24px; } }
-.risks { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--rule); }
-.risks li { display: grid; grid-template-columns: 4.5rem 1fr; gap: 12px; padding-block: 12px; border-bottom: 1px solid var(--rule); font-size: 0.9375rem; }
-.risks .lvl { font-family: var(--font-mono); font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding-top: 3px; }
-.risks .lvl.high { color: var(--flag); }
-.risks span.fix { display: block; color: var(--muted); }
-.nots { display: flex; flex-wrap: wrap; gap: 8px; align-content: start; }
-.nots span { font-family: var(--font-display); font-weight: 600; padding: 8px 14px; border: 1px dashed var(--rule); border-radius: 999px; text-decoration: line-through; text-decoration-color: var(--flag); text-decoration-thickness: 2px; }
-
-/* Footer */
-footer { margin-top: 120px; border-top: 2px solid var(--ink); }
-footer .wrap { padding-block: 48px 64px; display: grid; gap: 14px; }
-footer .rule-line { font-family: var(--font-display); font-weight: 800; font-stretch: 112%; font-size: var(--step-3); line-height: 1.02; max-width: 18ch; text-wrap: balance; }
-footer .rule-line em { font-style: normal; color: var(--flag); }
-
-.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--ground); font-family: var(--font-mono); font-size: var(--step--1); padding: 8px 14px; border-radius: 4px; z-index: 20; }
-
-/* Load sequence (starts from a visible state) */
-@media (prefers-reduced-motion: no-preference) {
-  .hero > * { animation: rise 0.7s cubic-bezier(.2,.8,.2,1) both; }
-  .hero > *:nth-child(2) { animation-delay: 0.12s; }
-  .hero > *:nth-child(3) { animation-delay: 0.24s; }
-  @keyframes rise { from { opacity: 0.15; transform: translateY(18px); } }
-}
-
-/* Scroll-driven motion: only where the browser supports it; everything is fully visible otherwise */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .progress { animation: grow linear both; animation-timeline: scroll(root); }
-    @keyframes grow { to { transform: scaleX(1); } }
-
-    .reveal { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 60%; }
-    @keyframes reveal { from { opacity: 0.1; transform: translateY(40px); } }
-
-    .goals .goal, .pages .page, .metrics .metric, .tier { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 80%; }
-
-    .beat .fill { animation: bar linear both; animation-timeline: view(); animation-range: entry 20% cover 40%; }
-    @keyframes bar { from { transform: scaleX(0); } }
-
-    .hero .card { animation: none; }
-    .strata-row { animation: settle linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
-    @keyframes settle { to { opacity: 0.4; transform: translateY(-12px); } }
-
-    /* Playbook pins and slides sideways as you scroll */
-    .pin { height: 380vh; view-timeline-name: --pin; }
-    .pin-sticky { position: sticky; top: var(--head-h); height: calc(100vh - var(--head-h)); align-content: center; gap: clamp(16px, 4vh, 40px); overflow: hidden; container-type: inline-size; }
-    .track { display: flex; grid-template-columns: none; width: max-content; animation: slide linear both; animation-timeline: --pin; animation-range: contain 0% contain 100%; }
-    .track .step { width: min(78cqw, 21rem); min-height: 15rem; }
-    @keyframes slide { to { transform: translateX(calc(-100% + 100cqw)); } }
-    .pin-bar { display: block; }
-    .pin-bar i { animation: grow linear both; animation-timeline: --pin; animation-range: contain 0% contain 100%; }
-  }
-}
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
 
-<header class="top">
-  <div class="wrap">
-    <a class="mark" href="#top" aria-label="Groundwork, back to top">
-      <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="0" y="12" width="22" height="2" fill="currentColor"/><rect x="0" y="16" width="22" height="6" fill="currentColor" opacity="0.35"/><rect x="5" y="1" width="2" height="13" fill="var(--flag)"/><path d="M7 1 L17 4.5 L7 8 Z" fill="var(--flag)"/></svg>
-      Groundwork
+<div class="app">
+  <aside class="rail">
+    <a class="brand" href="#today" aria-label="Groundwork, today">
+      <svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="18" width="11" height="6" rx="1" fill="var(--phase-2)"/><rect x="14" y="18" width="11" height="6" rx="1" fill="var(--phase-4)"/><rect x="7" y="11" width="11" height="6" rx="1" fill="var(--phase-3)"/><rect x="20" y="2" width="2" height="15" fill="var(--flag)"/><path d="M22 2 L26 4 L22 6 Z" fill="var(--flag)"/></svg>
+      <span class="wordmark">Groundwork</span>
     </a>
-    <nav class="nav" aria-label="Sections">
-      <a href="#goals">Goals</a>
-      <a href="#playbook">Playbook</a>
-      <a href="#rhythm">Rhythm</a>
-      <a href="#prompts">Prompts</a>
-      <a href="#build">Build</a>
-      <a href="#metrics">Metrics</a>
-    </nav>
-  </div>
-  <div class="progress" aria-hidden="true"></div>
-</header>
-
-<main id="top">
-  <div class="wrap">
-    <section class="hero">
-      <span class="label">90-day ramp-up system for new PMs</span>
-      <div style="display:grid; gap:20px">
-        <h1>Vague asks into <em>agreed work</em> in two days.</h1>
-        <p class="lede">One private Loop workspace. A few Copilot prompts. Twenty minutes a day.</p>
-        <div class="chips"><span class="chip">M365 only</span><span class="chip">1 afternoon to set up</span><span class="chip">No engineering</span></div>
-      </div>
-
-      <div class="card" aria-labelledby="today-title">
-        <div class="today">
-          <div style="display:grid; gap:6px">
-            <span class="label" id="today-title">Where you are</span>
-            <div class="big" id="day-num">Day 1 <span>of 90</span></div>
-            <div class="phase-now" id="phase-now">Set up and map</div>
-            <div class="next" id="next-check">Day 30 checkpoint in 29 days</div>
-          </div>
-          <div class="datefield">
-            <label class="label" for="start-date">Start date</label>
-            <input type="date" id="start-date" value="2026-10-07">
-          </div>
-        </div>
-        <div class="strata-scroll">
-          <div class="strata">
-            <div class="strata-row">
-              <div class="stratum"><span class="mono">Days 1–14</span><b>Set up and map</b></div>
-              <div class="stratum"><span class="mono">Days 15–30</span><b>Run the rhythm</b></div>
-              <div class="stratum"><span class="mono">Days 31–60</span><b>Build the craft</b></div>
-              <div class="stratum"><span class="mono">Days 61–90</span><b>Own and speak</b></div>
-            </div>
-            <div class="bench" style="left:33.333%">Day 30</div>
-            <div class="bench" style="left:66.667%">Day 60</div>
-            <div class="bench last" style="left:100%">Day 90</div>
-            <div class="stake" id="stake" style="left:0%"><span>You are here</span></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Goals -->
-    <section class="block" id="goals">
-      <div class="head reveal">
-        <span class="label">Why</span>
-        <h2>Six gaps. Six goals.</h2>
-      </div>
-      <div class="goals">
-        <div class="goal"><span class="label">Tasks</span><p>Every task gets a brief, agreed in two days</p><span class="by">Day 60</span></div>
-        <div class="goal"><span class="label">Vocabulary</span><p>One unknown term per meeting, at most</p><span class="by">Day 45</span></div>
-        <div class="goal"><span class="label">Craft</span><p>Spec accepted in two review rounds or fewer</p><span class="by">Day 90</span></div>
-        <div class="goal"><span class="label">Engineering</span><p>One shipped feature traced end to end</p><span class="by">Day 60</span></div>
-        <div class="goal"><span class="label">People</span><p>15 mapped, 8 one-to-ones, 1 mentor</p><span class="by">Day 75</span></div>
-        <div class="goal"><span class="label">Voice</span><p>Wins logged with evidence, Connects-ready</p><span class="by">Every Friday</span></div>
-      </div>
-    </section>
-
-  </div>
-
-  <section class="pin" id="playbook">
-    <div class="pin-sticky wrap">
-      <div class="pin-head">
-        <div class="head">
-          <span class="label">The task playbook</span>
-          <h2>Seven steps for every task.</h2>
-        </div>
-        <div class="sizer">
-          <div class="seg" role="group" aria-label="Task size">
-            <button type="button" id="size-small" data-size="small" aria-pressed="false">&lt; half a day</button>
-            <button type="button" id="size-week" data-size="week" aria-pressed="false">Up to a week</button>
-            <button type="button" id="size-big" data-size="big" aria-pressed="true">Bigger</button>
-          </div>
-          <span class="size-note" id="size-note">All seven. Full brief in writing.</span>
-        </div>
-      </div>
-      <ol class="track" id="steps">
-        <li class="step" data-step="1"><span class="n">1</span><h3>Capture the ask</h3><p>Exact words, who, when, deadline. Don't interpret yet.</p><span class="tag skip">Skip</span></li>
-        <li class="step" data-step="2"><span class="n">2</span><h3>Find the why</h3><p>What does it feed? Who cares? What's good, by when?</p><span class="tag skip">Skip</span></li>
-        <li class="step" data-step="3"><span class="n">3</span><h3>Map what exists</h3><p>Search Copilot and ADO. Note the names that keep appearing.</p><span class="tag skip">Skip</span></li>
-        <li class="step" data-step="4"><span class="n">4</span><h3>Talk to two people</h3><p>One who knows the history, one who'll feel the outcome.</p><span class="tag skip">Skip</span></li>
-        <li class="step" data-step="5"><span class="n">5</span><h3>Send the brief</h3><p>“Here's how I'm reading this. Anything wrong?”</p><span class="tag skip">Skip</span><span class="tag light">Five lines in chat</span></li>
-        <li class="step" data-step="6"><span class="n">6</span><h3>Share at 30%</h3><p>Early feedback is cheap. Late feedback is a rewrite.</p><span class="tag skip">Skip</span></li>
-        <li class="step" data-step="7"><span class="n">7</span><h3>Close the loop</h3><p>Two-line summary. Log the win. Update Glossary and People.</p><span class="tag skip">Skip</span></li>
-      </ol>
-      <div class="pin-bar" aria-hidden="true"><i></i></div>
+    <div class="brand-day" id="rail-day"></div>
+    <nav class="nav" id="nav" aria-label="Groundwork"></nav>
+    <div class="rail-foot">
+      <label for="start-date">Day 1 was<input type="date" id="start-date"></label>
     </div>
-  </section>
-
-  <div class="wrap">
-    <section class="block" style="padding-top:40px">
-      <p class="stuck reveal"><b>Stuck more than half a day?</b> <span>Add it to the Questions bank and ask. Silence is the failure.</span></p>
-      <div class="brief reveal">
-        <div class="brief-head">
-          <h3>The one-page brief</h3>
-          <button type="button" class="btn" id="copy-brief">Copy template</button>
-        </div>
-        <ol id="brief-fields">
-          <li>The ask, in their words</li>
-          <li>Requester and date</li>
-          <li>Why it matters</li>
-          <li>What done looks like</li>
-          <li>Deadline: hard or soft</li>
-          <li>Out of scope</li>
-          <li>People and their stake</li>
-          <li>Prior work found</li>
-          <li>Risks and unknowns</li>
-          <li>First check-in date</li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- Rhythm -->
-    <section class="block" id="rhythm">
-      <div class="head reveal">
-        <span class="label">The rhythm</span>
-        <h2>20 minutes a day, max.</h2>
-      </div>
-      <div class="rhythm">
-        <div class="beat"><b>Start of day</b><div class="meter"><span class="fill" style="width:calc(10 / 45 * 60%)"></span><span class="mono">10 min</span></div><span class="what">Catch-up prompt. Pick the one task that moves today.</span></div>
-        <div class="beat"><b>Before key meetings</b><div class="meter"><span class="fill" style="width:calc(5 / 45 * 60%)"></span><span class="mono">5 min</span></div><span class="what">Prep prompt.</span></div>
-        <div class="beat"><b>After key meetings</b><div class="meter"><span class="fill" style="width:calc(5 / 45 * 60%)"></span><span class="mono">5 min</span></div><span class="what">Debrief. Terms to Glossary, actions to Tasks.</span></div>
-        <div class="beat"><b>Friday</b><div class="meter"><span class="fill week" style="width:calc(20 / 45 * 60%)"></span><span class="mono">20 min</span></div><span class="what">Wins, held-back moments, next week's 1:1s.</span></div>
-        <div class="beat"><b>Day 30, 60, 90</b><div class="meter"><span class="fill gate" style="width:60%"></span><span class="mono">45 min</span></div><span class="what">Checkpoint with your manager.</span></div>
-      </div>
-    </section>
-
-    <!-- Workspace -->
-    <section class="block" id="workspace">
-      <div class="head reveal">
-        <span class="label">The workspace</span>
-        <h2>Seven pages. One Loop.</h2>
-      </div>
-      <div class="pages">
-        <div class="page"><h3>Tasks</h3><p>One brief per task</p><span class="src">playbook</span></div>
-        <div class="page"><h3>Glossary</h3><p>Term, local meaning, where heard</p><span class="src">debriefs, reading</span></div>
-        <div class="page"><h3>Debriefs</h3><p>Decisions, open questions, your actions</p><span class="src">Teams recap</span></div>
-        <div class="page"><h3>People</h3><p>Who owns what, what they care about</p><span class="src">1:1s, org chart</span></div>
-        <div class="page"><h3>Craft library</h3><p>Best specs, your template, feature trace</p><span class="src">manager, SharePoint</span></div>
-        <div class="page"><h3>Questions bank</h3><p>What you're stuck on, by who to ask</p><span class="src">every module</span></div>
-        <div class="page"><h3>Wins log</h3><p>What moved, your part, evidence link</p><span class="src">Friday review</span></div>
-      </div>
-    </section>
-
-    <!-- Prompts -->
-    <section class="block" id="prompts">
-      <div class="head reveal">
-        <span class="label">Copilot prompts</span>
-        <h2>Copy. Fill. Run.</h2>
-      </div>
-      <div class="tabs reveal" data-tabs="prompts">
-        <div class="tablist" role="tablist" aria-label="Prompts">
-          <button type="button" role="tab" id="tab-p-catchup" aria-controls="panel-prompts" aria-selected="true" data-key="catchup">Daily catch-up <span class="mono">10 min</span></button>
-          <button type="button" role="tab" id="tab-p-prep" aria-controls="panel-prompts" aria-selected="false" data-key="prep">Meeting prep <span class="mono">5 min</span></button>
-          <button type="button" role="tab" id="tab-p-debrief" aria-controls="panel-prompts" aria-selected="false" data-key="debrief">Meeting debrief <span class="mono">5 min</span></button>
-          <button type="button" role="tab" id="tab-p-map" aria-controls="panel-prompts" aria-selected="false" data-key="map">Map what exists <span class="mono">step 3</span></button>
-          <button type="button" role="tab" id="tab-p-terms" aria-controls="panel-prompts" aria-selected="false" data-key="terms">Decode terms <span class="mono">weekly</span></button>
-          <button type="button" role="tab" id="tab-p-pattern" aria-controls="panel-prompts" aria-selected="false" data-key="pattern">Spec pattern <span class="mono">once</span></button>
-          <button type="button" role="tab" id="tab-p-review" aria-controls="panel-prompts" aria-selected="false" data-key="review">Hard spec review <span class="mono">pre-review</span></button>
-        </div>
-        <div class="panel" role="tabpanel" id="panel-prompts" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- Modules -->
-    <section class="block" id="modules">
-      <div class="head reveal">
-        <span class="label">Modules</span>
-        <h2>How each gap closes.</h2>
-      </div>
-      <div class="tabs reveal" data-tabs="modules">
-        <div class="tablist" role="tablist" aria-label="Modules">
-          <button type="button" role="tab" id="tab-m-glossary" aria-controls="panel-modules" aria-selected="true" data-key="glossary">Glossary</button>
-          <button type="button" role="tab" id="tab-m-trace" aria-controls="panel-modules" aria-selected="false" data-key="trace">Feature trace</button>
-          <button type="button" role="tab" id="tab-m-craft" aria-controls="panel-modules" aria-selected="false" data-key="craft">Specs and design</button>
-          <button type="button" role="tab" id="tab-m-people" aria-controls="panel-modules" aria-selected="false" data-key="people">People and mentor</button>
-          <button type="button" role="tab" id="tab-m-friday" aria-controls="panel-modules" aria-selected="false" data-key="friday">Friday review</button>
-        </div>
-        <div class="panel" role="tabpanel" id="panel-modules" aria-live="polite"></div>
-      </div>
-    </section>
-
-    <!-- Build order -->
-    <section class="block" id="build">
-      <div class="head reveal">
-        <span class="label">Build order</span>
-        <h2>Habits first. Extras if earned.</h2>
-        <p>Ticks are saved in this browser only.</p>
-      </div>
-      <div class="tiers">
-        <div class="tier">
-          <div class="tier-head"><div class="row"><h3>P0 · week 1</h3><span class="count" data-count>0 / 6</span></div><div class="meter-bar"><i></i></div></div>
-          <ul class="checks">
-            <li><label><input type="checkbox" id="c-p0-1"><span>Brief template saved as a Loop component</span></label></li>
-            <li><label><input type="checkbox" id="c-p0-2"><span>Briefs sent within two working days</span></label></li>
-            <li><label><input type="checkbox" id="c-p0-3"><span>Debrief prompt saved</span></label></li>
-            <li><label><input type="checkbox" id="c-p0-4"><span>Terms to Glossary same day, actions to Tasks in 24h</span></label></li>
-            <li><label><input type="checkbox" id="c-p0-5"><span>Questions bank tagged by who to ask</span></label></li>
-            <li><label><input type="checkbox" id="c-p0-6"><span>Friday review blocked, recurring</span></label></li>
-          </ul>
-        </div>
-        <div class="tier">
-          <div class="tier-head"><div class="row"><h3>P1 · week 4</h3><span class="count" data-count>0 / 4</span></div><div class="meter-bar"><i></i></div></div>
-          <ul class="checks">
-            <li><label><input type="checkbox" id="c-p1-1"><span>Spec template and review prompt</span></label></li>
-            <li><label><input type="checkbox" id="c-p1-2"><span>Feature trace written up</span></label></li>
-            <li><label><input type="checkbox" id="c-p1-3"><span>People page: 10+ entries, 1:1 plan</span></label></li>
-            <li><label><input type="checkbox" id="c-p1-4"><span>Prep prompt before every key meeting</span></label></li>
-          </ul>
-        </div>
-        <div class="tier">
-          <div class="tier-head"><div class="row"><h3>P2 · if earned</h3><span class="count" data-count>0 / 3</span></div><div class="meter-bar"><i></i></div></div>
-          <ul class="checks">
-            <li><label><input type="checkbox" id="c-p2-1"><span>Power Automate: recaps into Debriefs</span></label></li>
-            <li><label><input type="checkbox" id="c-p2-2"><span>Personal Copilot agent on the workspace</span></label></li>
-            <li><label><input type="checkbox" id="c-p2-3"><span>Share the playbook with new grads</span></label></li>
-          </ul>
-          <p class="gate">Automate only what you've done by hand for a month and still skip.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Metrics -->
-    <section class="block" id="metrics">
-      <div class="head reveal">
-        <span class="label">Success metrics</span>
-        <h2>Day 30 → Day 90.</h2>
-      </div>
-      <div class="metrics">
-        <div class="metric lead"><span class="kind">Leading</span><p>Briefs agreed within 2 days</p><div class="vals"><s>60%</s><i>→</i>90%</div></div>
-        <div class="metric lead"><span class="kind">Leading</span><p>Unknown terms per meeting</p><div class="vals"><s>≤3</s><i>→</i>≤1</div></div>
-        <div class="metric lead"><span class="kind">Leading</span><p>Friday reviews done</p><div class="vals"><s>4/4</s><i>→</i>12/13</div></div>
-        <div class="metric lead"><span class="kind">Leading</span><p>1:1s held</p><div class="vals"><s>5</s><i>→</i>12</div></div>
-        <div class="metric"><span class="kind">Lagging</span><p>Tasks redone from misread scope</p><div class="vals"><s>≤1</s><i>→</i>0</div></div>
-        <div class="metric"><span class="kind">Lagging</span><p>Spec review rounds</p><div class="vals"><s>n/a</s><i>→</i>≤2</div></div>
-        <div class="metric"><span class="kind">Lagging</span><p>Mentor agreed</p><div class="vals"><s>No</s><i>→</i>Yes</div></div>
-        <div class="metric"><span class="kind">Lagging</span><p>Manager's view</p><div class="vals"><s>Ask</s><i>→</i>On track</div></div>
-      </div>
-    </section>
-
-    <!-- Guardrails -->
-    <section class="block" id="guardrails">
-      <div class="head reveal">
-        <span class="label">Guardrails</span>
-        <h2>What could sink it.</h2>
-      </div>
-      <div class="guard reveal">
-        <ul class="risks">
-          <li><span class="lvl high">High</span><span>It becomes overhead by week 3<span class="fix">Cap daily load at 20 min. Cut steps if metrics slip.</span></span></li>
-          <li><span class="lvl">Medium</span><span>Copilot gets a term wrong<span class="fix">Treat output as a draft. Confirm with a person.</span></span></li>
-          <li><span class="lvl">Medium</span><span>Briefs feel bureaucratic<span class="fix">Scale to task size. “Checking I've understood.”</span></span></li>
-          <li><span class="lvl">Low</span><span>People notes read as judgement<span class="fix">Record what people own, never assessments.</span></span></li>
-        </ul>
-        <div style="display:grid; gap:12px; align-content:start">
-          <span class="label">Not doing</span>
-          <div class="nots"><span>Building an app</span><span>Non-Microsoft AI</span><span>Replacing my manager</span><span>Learning to code</span><span>Perfect notes</span></div>
-        </div>
-      </div>
-    </section>
-  </div>
-</main>
-
-<footer>
-  <div class="wrap reveal">
-    <span class="label">The one rule</span>
-    <p class="rule-line">Metrics slip two weeks running? <em>Cut steps</em>, don't add discipline.</p>
-  </div>
-</footer>
-
-<div class="toast" id="toast" hidden role="status" aria-live="polite"></div>
+  </aside>
+  <main class="main" id="main"></main>
+</div>
+<div id="toast-slot" aria-live="polite"></div>
 
 <script>
 (function () {
-  var store = {
-    get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  };
-  function esc(s) { return s.replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  "use strict";
 
-  // Day tracker
+  /* ---------- Storage ---------- */
+  var KEY = "groundwork-v2";
+  function today() { var d = new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function addDays(iso, n) { var p = iso.split("-").map(Number); var d = new Date(Date.UTC(p[0], p[1] - 1, p[2] + n)); return d.getUTCFullYear() + "-" + pad(d.getUTCMonth() + 1) + "-" + pad(d.getUTCDate()); }
+  function diffDays(a, b) { var pa = a.split("-").map(Number), pb = b.split("-").map(Number); return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 86400000); }
+  function fmt(iso, opts) { var p = iso.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString("en-GB", opts || { day: "numeric", month: "short" }); }
+  function weekKey(iso) { var p = iso.split("-").map(Number); var d = new Date(Date.UTC(p[0], p[1] - 1, p[2])); var day = d.getUTCDay() || 7; d.setUTCDate(d.getUTCDate() + 4 - day); var y = new Date(Date.UTC(d.getUTCFullYear(), 0, 1)); return d.getUTCFullYear() + "-W" + pad(Math.ceil(((d - y) / 86400000 + 1) / 7)); }
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+
+  var T = today();
+  function seed() {
+    return {
+      start: T,
+      daily: {},
+      tasks: [
+        { id: "ex1", ex: true, title: "Look into why onboarding drop-off rose last month", size: "big", step: 3, created: addDays(T, -1), status: "open",
+          f: { ask: "Can you look into the onboarding drop-off? Numbers looked off in the last review.", requester: "Your manager", deadline: "Before the monthly business review (soft)", why: "Decides whether onboarding gets a slot in next quarter's planning.", done: "One page: where users drop, two likely causes, what to test first.", scope: "Fixing it. Pricing page changes.", prior: "", people: "", risks: "", checkin: "", sent: false, draft: false, outcome: "" } },
+        { id: "ex2", ex: true, title: "Summarise customer feedback themes for the design sync", size: "small", step: 7, created: addDays(T, -2), status: "done",
+          f: { ask: "Pull the top feedback themes before Thursday's design sync.", requester: "Design partner", deadline: "Thursday (hard)", why: "Picks which flow design explores first.", done: "Five themes with example quotes.", scope: "", prior: "", people: "", risks: "", checkin: "", sent: false, draft: false, outcome: "Shared five themes; design picked theme 2 to explore." } }
+      ],
+      terms: [
+        { id: "et1", ex: true, term: "Ring deployment", meaning: "Rolling a change out in stages (rings), from the team to wider internal users to customers, so problems surface early.", where: "Ship room", date: addDays(T, -1) },
+        { id: "et2", ex: true, term: "Flighting", meaning: "Turning a feature on for a slice of users to test it before full release.", where: "Eng standup", date: addDays(T, -1) },
+        { id: "et3", ex: true, term: "DRI", meaning: "Directly responsible individual: the one person who owns the outcome.", where: "Planning doc", date: addDays(T, -2) },
+        { id: "et4", ex: true, term: "Bug bar", meaning: "", where: "Ship room", date: T }
+      ],
+      people: [
+        { id: "ep1", ex: true, name: "Your eng lead", role: "Engineering lead", owns: "Release pipeline, on-call", cares: "Predictable scope", ring: "direct", met: 1, last: addDays(T, -2), mentor: false },
+        { id: "ep2", ex: true, name: "Your design partner", role: "Product designer", owns: "Onboarding flows", cares: "Being in early", ring: "direct", met: 0, last: "", mentor: false },
+        { id: "ep3", ex: true, name: "Your onboarding buddy", role: "Senior PM", owns: "Growth area", cares: "Clear written updates", ring: "direct", met: 1, last: addDays(T, -1), mentor: true }
+      ],
+      wins: [
+        { id: "ew1", ex: true, date: addDays(T, -2), what: "Feedback themes picked the next design exploration", part: "Pulled and grouped 40 comments into five themes", link: "" }
+      ],
+      questions: [
+        { id: "eq1", ex: true, q: "Which past specs do you rate highest?", who: "Manager", asked: false },
+        { id: "eq2", ex: true, q: "Is Copilot recap available for meetings I don't organise?", who: "Onboarding buddy", asked: false }
+      ],
+      reviews: {},
+      checks: {}
+    };
+  }
+  var S;
+  try { S = JSON.parse(localStorage.getItem(KEY)) || seed(); } catch (e) { S = seed(); }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+  function hasExamples() { return ["tasks", "terms", "people", "wins", "questions"].some(function (k) { return S[k].some(function (x) { return x.ex; }); }); }
+  function clearExamples() { ["tasks", "terms", "people", "wins", "questions"].forEach(function (k) { S[k] = S[k].filter(function (x) { return !x.ex; }); }); save(); }
+
+  /* ---------- Content from the spec ---------- */
   var PHASES = [
-    { name: "Set up and map", to: 14 },
-    { name: "Run the rhythm", to: 30 },
-    { name: "Build the craft", to: 60 },
-    { name: "Own and speak", to: 90 }
+    { name: "Set up and map", from: 1, to: 14, focus: ["Build the workspace", "Playbook on every task", "Start the glossary", "First five 1:1s"] },
+    { name: "Run the rhythm", from: 15, to: 30, focus: ["Debrief key meetings", "Hold every Friday review", "Use the questions bank", "Prep before meetings"] },
+    { name: "Build the craft", from: 31, to: 60, focus: ["Spec template ready", "Feature trace done", "Join a design review", "Shortlist a mentor"] },
+    { name: "Own and speak", from: 61, to: 90, focus: ["First spec reviewed", "Speak up once a week", "Mentor agreed", "Automate what stuck"] }
   ];
-  var input = document.getElementById("start-date");
-  var saved = store.get("gw-start");
-  if (saved) input.value = saved;
-  function render() {
-    var p = (input.value || "").split("-").map(Number);
-    if (p.length !== 3 || !p[0]) return;
-    var n = new Date();
-    var raw = Math.floor((Date.UTC(n.getFullYear(), n.getMonth(), n.getDate()) - Date.UTC(p[0], p[1] - 1, p[2])) / 86400000) + 1;
-    var day = Math.min(Math.max(raw, 1), 90);
-    var idx = PHASES.findIndex(function (ph) { return day <= ph.to; });
-    var num = document.getElementById("day-num"), phase = document.getElementById("phase-now"), next = document.getElementById("next-check");
-    if (raw < 1) {
-      num.innerHTML = (1 - raw) + " <span>days to go</span>";
-      phase.textContent = "Block an afternoon for setup";
-      next.textContent = "Starts " + input.value;
-    } else if (raw > 90) {
-      num.innerHTML = "Done <span>90 days</span>";
-      phase.textContent = "Keep what stuck";
-      next.textContent = "Share the playbook";
-    } else {
-      num.innerHTML = "Day " + day + " <span>of 90</span>";
-      phase.textContent = PHASES[idx].name;
-      var cp = [30, 60, 90].find(function (c) { return c >= day; }), gap = cp - day;
-      next.textContent = gap === 0 ? "Day " + cp + " checkpoint today" : "Day " + cp + " checkpoint in " + gap + (gap === 1 ? " day" : " days");
-    }
-    document.querySelectorAll(".stratum").forEach(function (el, i) { el.classList.toggle("is-now", raw >= 1 && raw <= 90 && i === idx); });
-    var pct = ((day - 0.5) / 90) * 100, stake = document.getElementById("stake");
-    stake.classList.toggle("flip", pct > 70);
-    requestAnimationFrame(function () { stake.style.left = pct + "%"; });
-  }
-  input.addEventListener("change", function () { store.set("gw-start", input.value); render(); });
-  render();
-
-  // Playbook sizing
   var SIZES = {
-    small: { on: [1, 2, 7], light: [], note: "Steps 1, 2 and 7 only." },
-    week: { on: [1, 2, 3, 4, 5, 6, 7], light: [5], note: "All seven. Brief in five lines." },
-    big: { on: [1, 2, 3, 4, 5, 6, 7], light: [], note: "All seven. Full brief in writing." }
+    small: { label: "Under half a day", hint: "Steps 1, 2 and 7", steps: [1, 2, 7] },
+    week: { label: "Up to a week", hint: "All 7, brief in five lines", steps: [1, 2, 3, 4, 5, 6, 7] },
+    big: { label: "Bigger or cross-team", hint: "All 7, full brief in writing", steps: [1, 2, 3, 4, 5, 6, 7] }
   };
-  var sizeBtns = document.querySelectorAll(".seg button");
-  function setSize(key) {
-    var s = SIZES[key];
-    sizeBtns.forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.size === key)); });
-    document.querySelectorAll(".step").forEach(function (el) {
-      var n = Number(el.dataset.step);
-      el.classList.toggle("is-off", s.on.indexOf(n) === -1);
-      el.classList.toggle("is-light", s.light.indexOf(n) !== -1);
-    });
-    document.getElementById("size-note").textContent = s.note;
-    store.set("gw-size", key);
-  }
-  sizeBtns.forEach(function (b) { b.addEventListener("click", function () { setSize(b.dataset.size); }); });
-  setSize(SIZES[store.get("gw-size")] ? store.get("gw-size") : "big");
+  var STEPS = [
+    null,
+    { t: "Capture the ask", h: "Write down exactly what was said. Don't interpret yet.", tip: "Copy their words from chat or email. Paraphrasing is where scope drifts." },
+    { t: "Find the why", h: "Three questions to the requester, in one message.", tip: "If they can't answer, that's a finding too: the task may not be ready." },
+    { t: "Map what exists", h: "Search before you build anything new.", tip: "Note the two or three names that keep turning up. They go on your People page." },
+    { t: "Talk to two people", h: "One who knows the history, one who'll feel the outcome.", tip: "Ask: what's been tried, what's the constraint nobody writes down, what would you worry about?" },
+    { t: "Send the brief", h: "“Here's how I'm reading this. Anything wrong before I start?”", tip: "This one message prevents most redone work." },
+    { t: "Share at 30%", h: "Show a rough draft early, not a polished one late.", tip: "Early feedback is cheap. Late feedback is a rewrite." },
+    { t: "Close the loop", h: "Send the result, log the win, update your pages.", tip: "Two lines: what changed, what's still open." }
+  ];
+  var BRIEF = [["ask", "The ask, in their words"], ["requester", "Requester and date"], ["why", "Why it matters"], ["done", "What done looks like"], ["deadline", "Deadline: hard or soft"], ["scope", "Out of scope"], ["people", "People and their stake"], ["prior", "Prior work found"], ["risks", "Risks and unknowns"], ["checkin", "First check-in"]];
+  var PROMPTS = [
+    { id: "catchup", t: "Daily catch-up", w: "10 min", q: "What happened yesterday in my Teams channels and email that relates to [area]? Flag anything waiting on me, and any discussion I should know about but wasn't tagged in." },
+    { id: "prep", t: "Meeting prep", w: "5 min", q: "I'm meeting [person] about [topic]. Summarise what's been said about this in the last two weeks across email, Teams and docs, and list open decisions." },
+    { id: "debrief", t: "Meeting debrief", w: "5 min", q: "List the decisions made, every acronym or technical term used and what it means in context, action items for me, and points of disagreement with who raised them." },
+    { id: "map", t: "Map what exists", w: "Step 3", q: "Find anything in my email, Teams, SharePoint and Loop about [topic] from the last 12 months: docs, decisions, people involved." },
+    { id: "terms", t: "Decode terms", w: "Weekly", q: "Explain these terms as they're used in my team's docs and chats: [terms]." },
+    { id: "pattern", t: "Spec pattern", w: "Once", q: "Compare these specs. What structure do they share, and what questions do they answer that weaker specs skip?" },
+    { id: "review", t: "Hard spec review", w: "Pre-review", q: "Review this draft spec as a sceptical engineering lead and as a designer. List every gap, unstated assumption and open question, most serious first." }
+  ];
+  var STARTER = ["Ring deployment", "Flighting", "Feature flags", "Ship room", "Bug bar", "DRI", "Epic", "CI pipeline", "Telemetry", "GA", "Private preview", "Public preview"];
+  var RINGS = { direct: "Direct counterparts", out: "Two steps out", wider: "Wider org" };
+  var TIERS = [
+    { id: "p0", t: "P0 · week 1", items: ["Brief template saved as a Loop component", "Debrief prompt saved", "Questions bank tagged by who to ask", "Friday review blocked, recurring"] },
+    { id: "p1", t: "P1 · by week 4", items: ["Spec template and review prompt", "Feature trace written up", "People page: 10+ entries", "Prep prompt before key meetings"] },
+    { id: "p2", t: "P2 · only if earned", items: ["Power Automate: recaps into Debriefs", "Personal Copilot agent", "Share the playbook with new grads"] }
+  ];
 
-  // Copy
-  var toast = document.getElementById("toast"), toastTimer;
-  function showToast(msg) { toast.textContent = msg; toast.hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(function () { toast.hidden = true; }, 2000); }
-  function copy(text, btn, node) {
-    var label = btn.textContent;
-    function ok() { btn.textContent = "Copied"; btn.classList.add("done"); setTimeout(function () { btn.textContent = label; btn.classList.remove("done"); }, 1500); }
-    function fail() {
-      if (node) { var r = document.createRange(); r.selectNodeContents(node); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); }
-      showToast("Copy blocked here. Text selected: press Ctrl+C or ⌘C.");
+  /* ---------- Helpers ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function dayNum() { return diffDays(S.start, T) + 1; }
+  function phaseOf(d) { for (var i = 0; i < PHASES.length; i++) if (d <= PHASES[i].to) return i; return 3; }
+  function initials(n) { return n.replace(/^your\s+/i, "").split(/\s+/).map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase(); }
+  function toast(msg) {
+    var slot = document.getElementById("toast-slot");
+    slot.innerHTML = '<div class="toast">' + esc(msg) + "</div>";
+    clearTimeout(toast.t); toast.t = setTimeout(function () { slot.innerHTML = ""; }, 2200);
+  }
+  function burst(el) {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches || !el) return;
+    var r = el.getBoundingClientRect(), cols = ["var(--flag)", "var(--phase-3)", "var(--done)", "var(--phase-1)"];
+    for (var i = 0; i < 18; i++) {
+      var c = document.createElement("i"); c.className = "confetti";
+      c.style.left = (r.left + r.width / 2) + "px"; c.style.top = (r.top + r.height / 2) + "px";
+      c.style.background = cols[i % cols.length];
+      c.style.setProperty("--dx", (Math.random() * 220 - 110) + "px");
+      c.style.setProperty("--dy", (Math.random() * 160 - 40) + "px");
+      c.style.setProperty("--rot", (Math.random() * 540) + "deg");
+      document.body.appendChild(c); setTimeout(c.remove.bind(c), 1000);
     }
+  }
+  function copyText(text, btn) {
+    function ok() { var l = btn.innerHTML; btn.innerHTML = "Copied"; btn.classList.add("ok"); setTimeout(function () { btn.innerHTML = l; btn.classList.remove("ok"); }, 1400); }
+    function fail() { toast("Copy is blocked here. Select the text and press Ctrl+C or ⌘C."); }
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fail); else fail();
   }
-  document.getElementById("copy-brief").addEventListener("click", function (e) {
-    var fields = Array.prototype.map.call(document.querySelectorAll("#brief-fields li"), function (li) { return li.textContent + ":"; });
-    copy("One-page brief\n" + fields.join("\n"), e.currentTarget, document.getElementById("brief-fields"));
-  });
-
-  // Tab content
-  var PROMPTS = {
-    catchup: { t: "Daily catch-up", w: "Start of day · Copilot Chat", q: "What happened yesterday in my Teams channels and email that relates to [area]? Flag anything waiting on me, and any discussion I should know about but wasn't tagged in." },
-    prep: { t: "Meeting prep", w: "5 min before a key meeting", q: "I'm meeting [person] about [topic]. Summarise what's been said about this in the last two weeks across email, Teams and docs, and list open decisions." },
-    debrief: { t: "Meeting debrief", w: "After a key meeting · on the Teams recap", q: "List the decisions made, every acronym or technical term used and what it means in context, action items for me, and points of disagreement with who raised them." },
-    map: { t: "Map what exists", w: "Playbook step 3", q: "Find anything in my email, Teams, SharePoint and Loop about [topic] from the last 12 months: docs, decisions, people involved." },
-    terms: { t: "Decode terms", w: "Weekly · on the Glossary backlog", q: "Explain these terms as they're used in my team's docs and chats: [list]." },
-    pattern: { t: "Spec pattern", w: "Once · on the team's 2–3 best specs", q: "Compare these specs. What structure do they share, and what questions do they answer that weaker specs skip?" },
-    review: { t: "Hard spec review", w: "Before real reviewers see your draft", q: "Review this draft spec as a sceptical engineering lead and as a designer. List every gap, unstated assumption and open question, most serious first." }
+  var ICONS = {
+    today: '<path d="M3 17h18M5 17V9h5v8M14 17V5h5v12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+    tasks: '<path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    glossary: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4zM5 17a3 3 0 0 1 3-3h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+    people: '<circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 19c.8-3.2 3.2-5 6-5s5.2 1.8 6 5M16 5.5a3 3 0 0 1 0 5.6M18 14c1.6.7 2.6 2.4 3 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+    questions: '<path d="M9.2 9a3 3 0 1 1 4.2 2.8c-.9.4-1.4 1.1-1.4 2v.7M12 18v.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/>',
+    wins: '<path d="M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3M12 14v4M8 20h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    friday: '<rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 10h16M9 3v4M15 3v4M9 14l2 2 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+    prompts: '<path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-4 3v-3H6a2 2 0 0 1-2-2V6zM8 9h8M8 12h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
+    progress: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>'
   };
-  var MODULES = {
-    glossary: '<div class="panel-head"><h3>Log the local meaning, same day.</h3></div><p>Codenames mean something specific here. Unclear after the weekly decode? Questions bank.</p><span class="label">Week-one terms</span><div class="terms"><span>ring deployment</span><span>flighting</span><span>feature flags</span><span>ship room</span><span>bug bar</span><span>DRI</span><span>epic › feature › story › task</span><span>code review</span><span>CI pipeline</span><span>telemetry</span><span>GA</span><span>private preview</span><span>public preview</span></div>',
-    trace: '<div class="panel-head"><h3>One feature, end to end.</h3></div><p>Pick something that shipped recently. Follow every artefact, then ask its owner what went wrong.</p><div class="trace"><span>Spec</span><i>→</i><span>ADO items</span><i>→</i><span>PRs</span><i>→</i><span>Pipeline</span><i>→</i><span>Rings</span><i>→</i><span>Telemetry</span><i>→</i><span>30 min with the owner</span></div>',
-    craft: '<div class="panel-head"><h3>Learn the house style first.</h3></div><ul class="list"><li><span class="mono">Specs</span><span>Get the 2–3 best from your manager. Extract the pattern. Hard-review your draft before anyone else does.</span></li><li><span class="mono">Design</span><span>Find where it lives. Ask when PMs join. Observe one review before contributing.</span></li><li><span class="mono">Prototypes</span><span>Learn when the team uses a wireframe and when a prototype.</span></li></ul>',
-    people: '<div class="panel-head"><h3>Two rings, then one ask.</h3></div><ul class="list"><li><span class="mono">Weeks 1–4</span><span>Direct eng, design and PM counterparts.</span></li><li><span class="mono">Weeks 5–8</span><span>Two steps out: names that keep showing up.</span></li><li><span class="mono">Week 6</span><span>Ask one person for a monthly 30 min with a purpose, like “pushing back on scope”.</span></li></ul>',
-    friday: '<div class="panel-head"><h3>Three questions, in writing.</h3></div><ul class="list"><li><span class="mono">Moved</span><span>What did I move forward? Link it.</span></li><li><span class="mono">Held back</span><span>Where did I have an opinion and not say it?</span></li><li><span class="mono">Next</span><span>Who should I meet, and what do I want to learn?</span></li></ul><p>After four weeks, find the pattern in when you go quiet. Pick one setting a week to speak up in.</p>'
+  var VIEWS = [
+    ["today", "Today"], ["tasks", "Tasks"], ["glossary", "Glossary"], ["people", "People"],
+    ["questions", "Questions"], ["wins", "Wins"], ["friday", "Friday review"], ["prompts", "Prompts"], ["progress", "Progress"]
+  ];
+
+  /* ---------- Shell ---------- */
+  var startInput = document.getElementById("start-date");
+  startInput.value = S.start;
+  startInput.addEventListener("change", function () { if (startInput.value) { S.start = startInput.value; save(); render(); toast("Start date set. Day " + Math.max(dayNum(), 1) + "."); } });
+
+  function renderShell(route) {
+    var d = dayNum(), pct = Math.min(Math.max(d, 0), 90) / 90 * 100;
+    document.getElementById("rail-day").innerHTML = d < 1
+      ? "<span>Starts in</span><b>" + (1 - d) + " days</b>"
+      : d > 90 ? "<span>Complete</span><b>90 / 90</b>"
+      : "<span>" + esc(PHASES[phaseOf(d)].name) + "</span><b>Day " + d + " <span>of 90</span></b><div class=\"mini\"><i style=\"width:" + pct + "%\"></i></div>";
+    var counts = { tasks: S.tasks.filter(function (t) { return t.status !== "done"; }).length, glossary: S.terms.length, people: S.people.length, questions: S.questions.filter(function (q) { return !q.asked; }).length, wins: S.wins.length };
+    document.getElementById("nav").innerHTML = VIEWS.map(function (v) {
+      var cur = route === v[0] || (route === "task" && v[0] === "tasks");
+      return '<a href="#' + v[0] + '"' + (cur ? ' aria-current="page"' : "") + '><svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[v[0]] + "</svg>" + v[1] + (counts[v[0]] ? '<span class="count">' + counts[v[0]] + "</span>" : "") + "</a>";
+    }).join("");
+  }
+
+  function exNote() {
+    return hasExamples() ? '<div class="ex-note"><span>Dashed items are examples so you can see how it works. Your entries save in this browser.</span><button class="btn small" data-act="clear-ex">Clear examples</button></div>' : "";
+  }
+  function exChip(x) { return x.ex ? '<span class="chip ex">example</span>' : ""; }
+
+  /* ---------- Views ---------- */
+  var V = {};
+  var selBrick = null;
+
+  V.today = function () {
+    var d = dayNum(), ph = phaseOf(Math.min(Math.max(d, 1), 90)), P = PHASES[ph];
+    var log = S.daily[T] || {};
+    var isFri = new Date().getDay() === 5;
+    var next = [30, 60, 90].filter(function (c) { return c >= d; })[0];
+    var hour = new Date().getHours();
+    var greet = hour < 12 ? "Good morning." : hour < 18 ? "Good afternoon." : "Good evening.";
+
+    var wall = "";
+    for (var row = 5; row >= 0; row--) {
+      wall += '<div class="course' + (row % 2 ? " offset" : "") + '">';
+      for (var c = 0; c < 15; c++) {
+        var n = row * 15 + c + 1, iso = addDays(S.start, n - 1), p = phaseOf(n) + 1;
+        var lg = S.daily[iso], laid = lg && (lg.catchup || lg.prep || lg.debrief || lg.friday);
+        var cls = "brick p" + p + (laid ? " laid" : "") + (n < d ? " past" : "") + (n === d ? " today" : "") + ([30, 60, 90].indexOf(n) > -1 ? " gate" : "") + (selBrick === n ? " sel" : "");
+        wall += '<button class="' + cls + '" data-act="brick" data-n="' + n + '" aria-label="Day ' + n + ", " + fmt(iso, { weekday: "short", day: "numeric", month: "short" }) + (laid ? ", laid" : "") + '"></button>';
+      }
+      wall += "</div>";
+    }
+    var laidCount = Object.keys(S.daily).filter(function (k) { var l = S.daily[k]; return diffDays(S.start, k) >= 0 && diffDays(S.start, k) < 90 && (l.catchup || l.prep || l.debrief || l.friday); }).length;
+
+    var rituals = [
+      ["catchup", "Morning catch-up", "Run the catch-up prompt. Pick the one task that moves today.", "10 min"],
+      ["prep", "Prep a key meeting", "Context, last discussion, what you want out of it.", "5 min"],
+      ["debrief", "Debrief a key meeting", "Terms to Glossary, actions to Tasks.", "5 min"]
+    ];
+    if (isFri) rituals.push(["friday", "Friday review", "Three questions, in writing.", "20 min"]);
+    var doneR = rituals.filter(function (r) { return log[r[0]]; }).length;
+
+    return '<div class="view">' +
+      '<div class="today-grid">' +
+        '<div class="hello span-8"><span class="label">' + fmt(T, { weekday: "long", day: "numeric", month: "long" }) + '</span>' +
+          '<div class="big">' + (d < 1 ? "Day 1 is in <em>" + (1 - d) + " days.</em>" : d > 90 ? "90 days. <em>Built.</em>" : greet.replace(".", ",") + "<br><em>day " + d + ".</em>") + '</div>' +
+          '<p style="color:var(--muted);margin-top:8px;max-width:46ch">' + (d >= 1 && d <= 90 ? "You're in <b style=\"color:var(--ink)\">" + esc(P.name) + "</b>. Every day you do the 20 minutes, a brick goes in." : "Set the date your role started in the sidebar.") + '</p></div>' +
+        '<div class="card check-card span-4"><span class="label">Next checkpoint</span>' +
+          (next ? '<div class="big-num">' + (next - d) + ' <span>days to day ' + next + '</span></div><div class="meter flag"><i style="width:' + (Math.max(d, 0) / next * 100) + '%"></i></div><p style="font-size:13px;color:var(--muted)">45 min with your manager against your goals.</p>' : '<div class="big-num">Done</div>') +
+        '</div>' +
+
+        '<div class="card wall-card span-8"><div class="card-head"><h2>Your foundation</h2><span class="mono" style="color:var(--muted)">' + laidCount + ' / 90 laid</span></div>' +
+          '<div class="wall" role="group" aria-label="90 days, one brick each">' + wall + '</div>' +
+          '<div class="phases">' + PHASES.map(function (p, i) { return '<div class="' + (i === ph && d >= 1 && d <= 90 ? "now" : "") + '"><b>' + esc(p.name) + '</b><span>' + p.from + "–" + p.to + "</span></div>"; }).join("") + '</div>' +
+          '<div class="brick-info" id="brick-info">' + brickInfo(selBrick) + '</div>' +
+          '<div class="wall-legend"><span><i style="background:var(--flag)"></i>Today</span><span><i style="background:var(--phase-3)"></i>Laid: did the daily 20</span><span><i style="background:repeating-linear-gradient(135deg,var(--brick-open) 0 3px,transparent 3px 6px);box-shadow:inset 0 0 0 1px var(--rule)"></i>Missed</span><span>◆ Checkpoint</span></div>' +
+        '</div>' +
+
+        '<div class="card span-4"><div class="card-head"><h2>Today\'s 20 minutes</h2><span class="mono" style="color:var(--muted)">' + doneR + "/" + rituals.length + '</span></div>' +
+          '<div class="ritual">' + rituals.map(function (r) {
+            return '<button data-act="ritual" data-k="' + r[0] + '" aria-pressed="' + (!!log[r[0]]) + '"><span class="tick">✓</span><span><b>' + r[1] + "</b><small>" + r[2] + '</small></span><span class="mins">' + r[3] + "</span></button>";
+          }).join("") + '</div>' +
+          '<a class="btn" href="#prompts">Open the prompts →</a>' +
+        '</div>' +
+
+        '<div class="card span-6"><div class="card-head"><h2>This phase</h2><span class="chip flag">' + esc(P.name) + '</span></div><ul class="focus-list">' + P.focus.map(function (f) { return "<li>" + esc(f) + "</li>"; }).join("") + '</ul></div>' +
+
+        '<div class="card span-6"><div class="card-head"><h2>Capture something</h2></div><div class="quick">' +
+          '<a class="btn" href="#tasks">＋ New task</a><a class="btn" href="#glossary">＋ Unknown term</a><a class="btn" href="#questions">＋ Question</a><a class="btn" href="#wins">＋ Win</a>' +
+        '</div><p style="font-size:13px;color:var(--muted)">Rough is fine. Friday is when it gets tidied.</p></div>' +
+      '</div>' + exNote() + '</div>';
   };
-  function renderPrompt(panel, key) {
-    var p = PROMPTS[key];
-    panel.innerHTML = '<div class="panel-head"><div style="display:grid;gap:6px"><h3>' + p.t + '</h3><span class="when">' + p.w + '</span></div><button type="button" class="btn">Copy prompt</button></div><blockquote>' + esc(p.q).replace(/\[[^\]]+\]/g, "<mark>$&</mark>") + '</blockquote>';
-    var q = panel.querySelector("blockquote");
-    panel.querySelector(".btn").addEventListener("click", function (e) { copy(p.q, e.currentTarget, q); });
+  function brickInfo(n) {
+    if (!n) return "Tap a brick to see that day.";
+    var iso = addDays(S.start, n - 1), lg = S.daily[iso] || {}, done = ["catchup", "prep", "debrief", "friday"].filter(function (k) { return lg[k]; }).length;
+    var d = dayNum();
+    return "<b>Day " + n + "</b> · " + fmt(iso, { weekday: "long", day: "numeric", month: "short" }) + " · " + esc(PHASES[phaseOf(n)].name) +
+      ([30, 60, 90].indexOf(n) > -1 ? " · <b>checkpoint</b>" : "") +
+      (n > d ? " · ahead" : n === d ? " · today, " + done + " done" : done ? " · laid, " + done + " ritual" + (done > 1 ? "s" : "") : " · missed");
   }
-  document.querySelectorAll("[data-tabs]").forEach(function (wrap) {
-    var kind = wrap.dataset.tabs, panel = wrap.querySelector(".panel"), tabs = wrap.querySelectorAll("[role=tab]");
-    function select(btn, focus) {
-      tabs.forEach(function (t) { var on = t === btn; t.setAttribute("aria-selected", String(on)); t.tabIndex = on ? 0 : -1; });
-      panel.setAttribute("aria-labelledby", btn.id);
-      panel.style.animation = "none"; void panel.offsetWidth; panel.style.animation = "";
-      if (kind === "prompts") renderPrompt(panel, btn.dataset.key); else panel.innerHTML = MODULES[btn.dataset.key];
-      if (focus) btn.focus();
+
+  V.tasks = function () {
+    var open = S.tasks.filter(function (t) { return t.status !== "done"; }), done = S.tasks.filter(function (t) { return t.status === "done"; });
+    function card(t) {
+      var steps = SIZES[t.size].steps, dots = "";
+      for (var i = 1; i <= 7; i++) dots += '<i class="' + (steps.indexOf(i) < 0 ? "na" : t.status === "done" || i < t.step ? "on" : i === t.step ? "cur" : "") + '"></i>';
+      return '<a class="task" href="#task-' + t.id + '"><div><h3>' + esc(t.title) + '</h3><div class="meta"><span class="chip">' + SIZES[t.size].label + "</span>" +
+        (t.status === "done" ? '<span class="chip ok">Done</span>' : '<span class="chip flag">Step ' + t.step + ": " + STEPS[t.step].t + "</span>") +
+        (t.f.sent ? '<span class="chip ok">Brief sent</span>' : "") + exChip(t) + '</div></div><div class="dots" aria-hidden="true">' + dots + "</div></a>";
     }
-    tabs.forEach(function (t, i) {
-      t.addEventListener("click", function () { select(t); });
-      t.addEventListener("keydown", function (e) {
-        var d = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
-        if (d) { e.preventDefault(); select(tabs[(i + d + tabs.length) % tabs.length], true); }
-      });
-    });
-    select(tabs[0]);
+    return '<div class="view"><div class="view-head"><div><h1>Tasks</h1><p>Every ask goes through the playbook. Pick a size and the steps adjust.</p></div></div>' +
+      '<form class="card" data-form="task"><div class="field"><span>What were you asked to do?</span><input class="input" id="task-title" name="title" placeholder="e.g. Look into why trial sign-ups dipped" required autocomplete="off"></div>' +
+      '<div class="size-pick" role="radiogroup" aria-label="Task size">' + Object.keys(SIZES).map(function (k, i) {
+        return '<label><input type="radio" name="size" value="' + k + '"' + (k === "week" ? " checked" : "") + '><b>' + SIZES[k].label + "</b><small>" + SIZES[k].hint + "</small></label>";
+      }).join("") + '</div><div class="row"><button class="btn primary" type="submit">Start the playbook →</button></div></form>' +
+      '<div class="task-list">' + (open.length ? open.map(card).join("") : '<div class="empty">No open tasks. Add the next ask above.</div>') + "</div>" +
+      (done.length ? '<span class="label">Done</span><div class="task-list">' + done.map(card).join("") + "</div>" : "") + exNote() + "</div>";
+  };
+
+  V.task = function (id) {
+    var t = S.tasks.filter(function (x) { return x.id === id; })[0];
+    if (!t) return '<div class="view"><div class="empty">That task no longer exists. <a href="#tasks">Back to tasks</a></div></div>';
+    var steps = SIZES[t.size].steps, s = t.view || t.step;
+    if (steps.indexOf(s) < 0) s = steps[0];
+    var st = STEPS[s];
+    function fld(k, label, ph, area) {
+      return '<label class="field"><span>' + label + "</span>" + (area ? '<textarea class="input" data-f="' + k + '" id="f-' + k + '" placeholder="' + esc(ph) + '">' + esc(t.f[k]) + "</textarea>" : '<input class="input" data-f="' + k + '" id="f-' + k + '" placeholder="' + esc(ph) + '" value="' + esc(t.f[k]) + '" autocomplete="off">') + "</label>";
+    }
+    var body = "";
+    if (s === 1) body = fld("ask", "Their exact words", "Paste the message or write it verbatim", true) + '<div class="grid-2">' + fld("requester", "Who asked, and when", "Name · date") + fld("deadline", "Deadline mentioned", "Date, and hard or soft") + "</div>";
+    if (s === 2) body = fld("why", "What decision or outcome does this feed?", "e.g. Planning slot for next quarter", true) + fld("done", "What does good look like, and by when?", "The artefact and the bar it has to clear", true) + fld("scope", "What's out of scope?", "Things you won't do");
+    if (s === 3) body = '<div class="tip"><b>Prompt</b><span style="flex:1;font-family:var(--font-mono);font-size:13px">Find anything in my email, Teams, SharePoint and Loop about ' + esc(t.title) + ' from the last 12 months: docs, decisions, people involved.</span></div><div class="row"><button class="btn small" type="button" data-act="copy-map">Copy search prompt</button><span class="mono" style="color:var(--muted)">Also search ADO for related work items.</span></div>' + fld("prior", "What did you find?", "Docs, decisions, past attempts, links", true);
+    if (s === 4) body = fld("people", "Who did you talk to, and what's their stake?", "Name: what they care about", true) + fld("risks", "Risks, unwritten constraints, worries", "What could go wrong or what nobody writes down", true);
+    if (s === 5) body = fld("checkin", "First check-in date", "e.g. Thursday 1:1") + '<dl class="brief-doc" id="brief-doc">' + briefRows(t) + '</dl><div class="row"><button class="btn" type="button" data-act="copy-brief">Copy brief</button><button class="btn ' + (t.f.sent ? "ok" : "primary") + '" type="button" data-act="toggle" data-k="sent">' + (t.f.sent ? "✓ Brief sent" : "Mark brief as sent") + "</button></div>" + (t.size === "week" ? '<p class="mono" style="color:var(--muted)">Up to a week: five lines in chat is enough. Lead with the ask, why, done, deadline and check-in.</p>' : "");
+    if (s === 6) body = '<div class="row"><button class="btn ' + (t.f.draft ? "ok" : "primary") + '" type="button" data-act="toggle" data-k="draft">' + (t.f.draft ? "✓ Rough draft shared" : "I shared a rough draft") + "</button></div>";
+    if (s === 7) body = fld("outcome", "Two lines: what changed, what's open", "Send this with the result", true) + '<div class="row"><button class="btn primary" type="button" data-act="close-task">' + (t.status === "done" ? "Log another win from this" : "Close task and log the win") + "</button>" + (t.status === "done" ? '<span class="chip ok">Done</span>' : "") + "</div>" + '<p class="mono" style="color:var(--muted)">Then add new terms to the Glossary and new names to People.</p>';
+
+    var si = steps.indexOf(s), prev = steps[si - 1], nxt = steps[si + 1];
+    return '<div class="view"><div class="view-head"><div><a href="#tasks" class="mono" style="color:var(--muted);text-decoration:none">← Tasks</a><h1 style="margin-top:6px;font-size:clamp(24px,3.5vw,34px)">' + esc(t.title) + '</h1><div class="row" style="margin-top:10px"><span class="chip">' + SIZES[t.size].label + "</span>" + exChip(t) + '</div></div><button class="btn ghost small" data-act="del-task">Delete task</button></div>' +
+      '<div class="wizard"><ol class="stepper">' + [1, 2, 3, 4, 5, 6, 7].map(function (i) {
+        var na = steps.indexOf(i) < 0;
+        return '<li><button type="button" data-act="goto" data-s="' + i + '" class="' + (na ? "na" : (t.status === "done" || i < t.step) ? "done" : "") + '"' + (i === s ? ' aria-current="step"' : "") + (na ? " disabled" : "") + '><span class="num">' + i + "</span>" + STEPS[i].t + "</button></li>";
+      }).join("") + "</ol>" +
+      '<div class="card step-panel"><div class="step-title"><span class="n">' + s + "</span><div><h2>" + st.t + '</h2><p class="hint">' + st.h + "</p></div></div>" +
+      '<div class="tip"><b>Why</b><span>' + st.tip + "</span></div>" + body +
+      '<div class="step-nav">' + (prev ? '<button class="btn" data-act="goto" data-s="' + prev + '">← ' + STEPS[prev].t + "</button>" : "<span></span>") +
+      (nxt ? '<button class="btn dark" data-act="advance" data-s="' + nxt + '">Next: ' + STEPS[nxt].t + " →</button>" : "") + "</div></div></div></div>";
+  };
+  function briefRows(t) {
+    return BRIEF.map(function (b) {
+      var v = t.f[b[0]];
+      if (b[0] === "requester" && v && t.created) v = v;
+      return "<div><dt>" + b[1] + "</dt><dd" + (v ? ">" + esc(v) : ' class="blank">missing') + "</dd></div>";
+    }).join("");
+  }
+  function briefText(t) { return "Here's how I'm reading this. Anything wrong before I start?\n\n" + BRIEF.map(function (b) { return b[1] + ": " + (t.f[b[0]] || "—"); }).join("\n"); }
+
+  V.glossary = function () {
+    var q = (V.glossary.q || "").toLowerCase();
+    var list = S.terms.slice().reverse();
+    var have = S.terms.map(function (x) { return x.term.toLowerCase(); });
+    var starters = STARTER.filter(function (s) { return have.indexOf(s.toLowerCase()) < 0; });
+    var missing = S.terms.filter(function (x) { return !x.meaning; }).length;
+    return '<div class="view"><div class="view-head"><div><h1>Glossary</h1><p>The meaning on this team, not the textbook one. Tap a card to flip it.</p></div>' +
+      (missing ? '<span class="chip flag">' + missing + " still to decode</span>" : "") + "</div>" +
+      '<form class="card" data-form="term"><div class="grid-2"><label class="field"><span>Term</span><input class="input" id="term-term" name="term" required autocomplete="off" placeholder="e.g. Ship room"></label><label class="field"><span>Where you heard it</span><input class="input" id="term-where" name="where" autocomplete="off" placeholder="Meeting or doc"></label></div>' +
+      '<label class="field"><span>What it means here</span><input class="input" id="term-meaning" name="meaning" autocomplete="off" placeholder="Leave blank if you don\'t know yet"></label><div class="row"><button class="btn primary" type="submit">Add term</button></div>' +
+      (starters.length ? '<div class="row"><span class="label">Week-one terms</span>' + starters.map(function (s) { return '<button type="button" class="chip" data-act="starter" data-t="' + esc(s) + '">＋ ' + esc(s) + "</button>"; }).join("") + "</div>" : "") + "</form>" +
+      '<input class="input" type="search" id="term-search" placeholder="Search ' + S.terms.length + ' terms" value="' + esc(V.glossary.q || "") + '">' +
+      '<div class="terms-grid">' + (list.length ? list.map(function (x) {
+        return '<button class="term" data-act="flip" data-id="' + x.id + '" data-text="' + esc((x.term + " " + x.meaning).toLowerCase()) + '"' + (q && (x.term + " " + x.meaning).toLowerCase().indexOf(q) < 0 ? " hidden" : "") + '><span class="face front"><span class="row" style="justify-content:space-between"><span class="label">' + esc(x.where || "Heard somewhere") + "</span>" + exChip(x) + '</span><b>' + esc(x.term) + "</b>" + (x.meaning ? '<span class="mono" style="color:var(--muted)">Tap to flip</span>' : '<span class="meaning-missing">Still to decode · ask Copilot or your buddy</span>') + '</span><span class="face back"><span class="label">' + esc(x.term) + "</span><p>" + esc(x.meaning || "No meaning yet. Add it to Friday's decode list.") + '</p><span class="row" style="justify-content:space-between"><span class="mono">' + fmt(x.date) + '</span><span class="icon-btn" role="button" tabindex="0" data-act="del-term" data-id="' + x.id + '" aria-label="Delete ' + esc(x.term) + '">×</span></span></span></button>';
+      }).join("") : '<div class="empty">No terms yet.</div>') + "</div>" + exNote() + "</div>";
+  };
+
+  V.people = function () {
+    var mapped = S.people.length, met = S.people.filter(function (p) { return p.met > 0; }).length, mentor = S.people.some(function (p) { return p.mentor; });
+    return '<div class="view"><div class="view-head"><div><h1>People</h1><p>What people own and care about. Never assessments.</p></div></div>' +
+      '<div class="goal-grid">' +
+        goalCard(mapped, 15, "people mapped", "Day 75") + goalCard(met, 8, "people you've had a 1:1 with", "Day 75") +
+        '<div class="card goal"><span class="label">Mentor</span><div class="num word">' + (mentor ? "Shortlisted" : "Not yet") + '</div><p>Star someone whose judgement you trust. Ask by week 6.</p><span class="by">Agreed by day 75</span></div>' +
+      "</div>" +
+      '<form class="card" data-form="person"><div class="grid-2"><label class="field"><span>Name</span><input class="input" id="p-name" name="name" required autocomplete="off"></label><label class="field"><span>Role</span><input class="input" id="p-role" name="role" autocomplete="off"></label>' +
+      '<label class="field"><span>What they own</span><input class="input" id="p-owns" name="owns" autocomplete="off"></label><label class="field"><span>What they care about</span><input class="input" id="p-cares" name="cares" autocomplete="off"></label></div>' +
+      '<div class="row"><select class="input" id="p-ring" name="ring" style="width:auto">' + Object.keys(RINGS).map(function (k) { return '<option value="' + k + '">' + RINGS[k] + "</option>"; }).join("") + '</select><button class="btn primary" type="submit">Add person</button></div></form>' +
+      '<div class="rings">' + Object.keys(RINGS).map(function (k) {
+        var ps = S.people.filter(function (p) { return p.ring === k; });
+        if (!ps.length) return "";
+        return '<div><div class="ring-head"><h2>' + RINGS[k] + '</h2><span class="mono" style="color:var(--muted)">' + (k === "direct" ? "Weeks 1–4" : k === "out" ? "Weeks 5–8" : "") + '</span></div><div class="people-grid">' + ps.map(function (p) {
+          return '<div class="card person"><div class="person-top"><span class="avatar">' + esc(initials(p.name)) + '</span><div style="min-width:0"><h3>' + esc(p.name) + '</h3><div class="role">' + esc(p.role) + '</div></div><button class="star" data-act="star" data-id="' + p.id + '" aria-pressed="' + !!p.mentor + '" aria-label="Mentor candidate">★</button></div>' +
+            '<dl>' + (p.owns ? "<div><dt>Owns</dt><dd>" + esc(p.owns) + "</dd></div>" : "") + (p.cares ? "<div><dt>Cares about</dt><dd>" + esc(p.cares) + "</dd></div>" : "") + "</dl>" +
+            '<div class="row" style="justify-content:space-between"><span class="mono" style="color:var(--muted)">' + (p.met ? p.met + " × 1:1 · last " + fmt(p.last) : "No 1:1 yet") + '</span><span class="row" style="gap:4px">' + exChip(p) + '<button class="btn small" data-act="met" data-id="' + p.id + '">＋ 1:1 today</button><button class="icon-btn" data-act="del-person" data-id="' + p.id + '" aria-label="Remove ' + esc(p.name) + '">×</button></span></div></div>';
+        }).join("") + "</div></div>";
+      }).join("") + "</div>" + exNote() + "</div>";
+  };
+
+  V.questions = function () {
+    var groups = {};
+    S.questions.forEach(function (q) { (groups[q.who || "Anyone"] = groups[q.who || "Anyone"] || []).push(q); });
+    var whoList = Object.keys(groups);
+    return '<div class="view"><div class="view-head"><div><h1>Questions bank</h1><p>Stuck for more than half a day? It goes here, then to the next 1:1. Being stuck silently is the failure.</p></div></div>' +
+      '<form class="card" data-form="question"><label class="field"><span>What are you stuck on?</span><input class="input" id="q-q" name="q" required autocomplete="off"></label><div class="row"><input class="input" id="q-who" name="who" list="who-list" placeholder="Who to ask" style="flex:1;min-width:10rem" autocomplete="off"><datalist id="who-list">' + ["Manager", "Onboarding buddy", "Eng lead", "Designer"].concat(S.people.map(function (p) { return p.name; })).map(function (w) { return '<option value="' + esc(w) + '">'; }).join("") + '</datalist><button class="btn primary" type="submit">Add question</button></div></form>' +
+      (whoList.length ? whoList.map(function (w) {
+        return '<div class="qgroup"><span class="label">Ask ' + esc(w) + " · " + groups[w].filter(function (q) { return !q.asked; }).length + ' open</span>' + groups[w].map(function (q) {
+          return '<label class="q' + (q.asked ? " asked" : "") + '"><input type="checkbox" data-act="asked" data-id="' + q.id + '"' + (q.asked ? " checked" : "") + '><span>' + esc(q.q) + '</span><span class="row" style="gap:4px">' + exChip(q) + '<button type="button" class="icon-btn" data-act="del-q" data-id="' + q.id + '" aria-label="Delete question">×</button></span></label>';
+        }).join("") + "</div>";
+      }).join("") : '<div class="empty">Nothing stuck. Good.</div>') + exNote() + "</div>";
+  };
+
+  V.wins = function () {
+    var list = S.wins.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+    return '<div class="view"><div class="view-head"><div><h1>Wins log</h1><p>What moved, your part, the evidence. Ready for Connects without reconstruction.</p></div><button class="btn dark" data-act="copy-wins"' + (list.length ? "" : " disabled") + '>Copy all for Connects</button></div>' +
+      '<form class="card" data-form="win"><label class="field"><span>What moved?</span><input class="input" id="w-what" name="what" required autocomplete="off" placeholder="The outcome, not the activity"></label><div class="grid-2"><label class="field"><span>Your part</span><input class="input" id="w-part" name="part" autocomplete="off"></label><label class="field"><span>Evidence link</span><input class="input" id="w-link" name="link" autocomplete="off" placeholder="Doc, thread or dashboard"></label></div><div class="row"><button class="btn primary" type="submit">Log win</button></div></form>' +
+      (list.length ? '<div class="timeline">' + list.map(function (w) {
+        return '<div class="win"><div class="card"><div class="row" style="justify-content:space-between"><span class="when">' + fmt(w.date, { weekday: "short", day: "numeric", month: "short" }) + '</span><span class="row" style="gap:4px">' + exChip(w) + '<button class="icon-btn" data-act="del-win" data-id="' + w.id + '" aria-label="Delete win">×</button></span></div><h3>' + esc(w.what) + "</h3>" + (w.part ? '<p style="color:var(--muted);font-size:14px">' + esc(w.part) + "</p>" : "") + (w.link ? '<a href="' + esc(/^https?:\/\//.test(w.link) ? w.link : "#") + '" target="_blank" rel="noopener">' + esc(w.link) + "</a>" : "") + "</div></div>";
+      }).join("") + "</div>" : '<div class="empty">No wins yet. Close a task to log your first.</div>') + exNote() + "</div>";
+  };
+
+  V.friday = function () {
+    var wk = weekKey(T), r = S.reviews[wk] || {};
+    var past = Object.keys(S.reviews).filter(function (k) { return k !== wk; }).sort().reverse();
+    return '<div class="view"><div class="view-head"><div><h1>Friday review</h1><p>20 minutes. Three questions, answered in writing. Question 2 is the one that builds your voice.</p></div><span class="chip">' + wk.replace("-W", " · week ") + "</span></div>" +
+      '<form class="card qa" data-form="review">' +
+        '<label class="field"><span><em>01</em>What did I move forward this week? Link it.</span><textarea class="input" id="r-moved" name="moved">' + esc(r.moved) + "</textarea></label>" +
+        '<label class="field"><span><em>02</em>Where did I have an opinion and not say it?</span><textarea class="input" id="r-held" name="held">' + esc(r.held) + "</textarea><small>After four weeks, look for the pattern: which meetings, people, topics. Then pick one to speak up in.</small></label>" +
+        '<label class="field"><span><em>03</em>Who should I meet next week, and what do I want to learn?</span><textarea class="input" id="r-next" name="next">' + esc(r.next) + "</textarea></label>" +
+        '<div class="row"><button class="btn primary" type="submit">' + (r.saved ? "Update this week" : "Save this week") + "</button>" + (r.saved ? '<span class="chip ok">Saved</span>' : "") + "</div></form>" +
+      (past.length ? '<span class="label">Past weeks</span><div class="past">' + past.map(function (k) { var p = S.reviews[k]; return "<details><summary>" + k.replace("-W", " · week ") + "</summary><dl><dt>Moved</dt><dd>" + esc(p.moved || "—") + "</dd><dt>Held back</dt><dd>" + esc(p.held || "—") + "</dd><dt>Next</dt><dd>" + esc(p.next || "—") + "</dd></dl></details>"; }).join("") + "</div>" : "") + "</div>";
+  };
+
+  V.prompts = function () {
+    var cur = PROMPTS.filter(function (p) { return p.id === V.prompts.sel; })[0] || PROMPTS[0];
+    var vals = (V.prompts.vals = V.prompts.vals || {});
+    var slots = (cur.q.match(/\[[^\]]+\]/g) || []);
+    return '<div class="view"><div class="view-head"><div><h1>Prompts</h1><p>Fill the blanks, copy, run in Copilot Chat. Treat every answer as a draft.</p></div></div>' +
+      '<div class="prompt-layout"><div class="prompt-tabs" role="tablist" aria-label="Prompts">' + PROMPTS.map(function (p) {
+        return '<button role="tab" id="pt-' + p.id + '" aria-selected="' + (p === cur) + '" data-act="prompt" data-id="' + p.id + '">' + p.t + "<span>" + p.w + "</span></button>";
+      }).join("") + '</div><div class="card" role="tabpanel" aria-labelledby="pt-' + cur.id + '"><div class="card-head"><h2 style="font-size:22px">' + cur.t + '</h2><button class="btn primary" data-act="copy-prompt">Copy prompt</button></div>' +
+      (slots.length ? '<div class="grid-2">' + slots.map(function (s) { var k = s.slice(1, -1); return '<label class="field"><span>' + esc(k.charAt(0).toUpperCase() + k.slice(1)) + '</span><input class="input" data-slot="' + esc(k) + '" id="slot-' + esc(k) + '" value="' + esc(vals[k] || "") + '" autocomplete="off"></label>'; }).join("") + "</div>" : "") +
+      '<div class="prompt-out" id="prompt-out">' + promptHTML(cur) + "</div></div></div></div>";
+  };
+  function promptFill(p, html) {
+    var vals = V.prompts.vals || {};
+    var src = html ? esc(p.q) : p.q;
+    return src.replace(/\[([^\]]+)\]/g, function (m, k) { var v = vals[k]; return v ? (html ? '<span class="filled">' + esc(v) + "</span>" : v) : (html ? "<mark>" + m + "</mark>" : m); });
+  }
+  function promptHTML(p) { return promptFill(p, true); }
+
+  function goalCard(n, of, label, by) {
+    return '<div class="card goal"><span class="label">' + label + '</span><div class="num">' + n + " <span>/ " + of + '</span></div><div class="meter ' + (n >= of ? "ok" : "flag") + '"><i style="width:' + Math.min(n / of * 100, 100) + '%"></i></div><span class="by">' + by + "</span></div>";
+  }
+  V.progress = function () {
+    var withBrief = S.tasks.filter(function (t) { return t.f.sent; }).length, eligible = S.tasks.filter(function (t) { return t.size !== "small"; }).length;
+    var reviews = Object.keys(S.reviews).filter(function (k) { return S.reviews[k].saved; }).length;
+    var met = S.people.filter(function (p) { return p.met > 0; }).length, oneOnes = S.people.reduce(function (a, p) { return a + (p.met || 0); }, 0);
+    var decoded = S.terms.filter(function (t) { return t.meaning; }).length;
+    var weeks = Math.max(1, Math.ceil(Math.max(dayNum(), 1) / 7));
+    return '<div class="view"><div class="view-head"><div><h1>Progress</h1><p>Leading numbers say the system is running. If they slip two weeks running, cut steps before adding discipline.</p></div></div>' +
+      '<div class="goal-grid">' +
+        '<div class="card goal"><span class="label">Briefs sent</span><div class="num">' + (eligible ? Math.round(withBrief / eligible * 100) : 0) + '<span>%</span></div><div class="meter flag"><i style="width:' + (eligible ? withBrief / eligible * 100 : 0) + '%"></i></div><p>' + withBrief + " of " + eligible + ' tasks over half a day</p><span class="by">60% by day 30 · 90% by day 90</span></div>' +
+        goalCard(reviews, Math.min(weeks, 13), "Friday reviews done", "Every week") +
+        goalCard(oneOnes, 12, "1:1s held", "5 by day 30 · 12 by day 90") +
+        goalCard(met, 8, "people met 1:1", "8 by day 75") +
+        '<div class="card goal"><span class="label">Glossary</span><div class="num">' + decoded + " <span>/ " + S.terms.length + ' decoded</span></div><div class="meter"><i style="width:' + (S.terms.length ? decoded / S.terms.length * 100 : 0) + '%"></i></div><span class="by">≤ 1 unknown term per meeting by day 45</span></div>' +
+        '<div class="card goal"><span class="label">Wins logged</span><div class="num">' + S.wins.length + '</div><p>At least one a week, or a note on why not.</p><span class="by">Connects-ready</span></div>' +
+      "</div>" +
+      '<div class="tiers">' + TIERS.map(function (tier) {
+        var done = tier.items.filter(function (_, i) { return S.checks[tier.id + i]; }).length;
+        return '<div class="card"><div class="card-head"><h2>' + tier.t + '</h2><span class="mono" style="color:var(--muted)">' + done + " / " + tier.items.length + '</span></div><div class="meter flag"><i style="width:' + done / tier.items.length * 100 + '%"></i></div><ul class="checks">' + tier.items.map(function (it, i) {
+          return '<li><label><input type="checkbox" id="chk-' + tier.id + i + '" data-act="chk" data-k="' + tier.id + i + '"' + (S.checks[tier.id + i] ? " checked" : "") + "><span>" + esc(it) + "</span></label></li>";
+        }).join("") + "</ul>" + (tier.id === "p2" ? '<p class="mono" style="color:var(--muted)">Automate only what you\'ve done by hand for a month and still skip.</p>' : "") + "</div>";
+      }).join("") + "</div></div>";
+  };
+
+  /* ---------- Router ---------- */
+  var main = document.getElementById("main");
+  function route() { var h = (location.hash || "#today").slice(1); return h; }
+  function render(keepScroll) {
+    var h = route(), name = h.indexOf("task-") === 0 ? "task" : (V[h] ? h : "today");
+    renderShell(name);
+    if (keepScroll) main.setAttribute("data-still", ""); else main.removeAttribute("data-still");
+    main.innerHTML = name === "task" ? V.task(h.slice(5)) : V[name]();
+    if (!keepScroll) window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", function () { selBrick = null; render(); });
+
+  function findTask() { var h = route(); return S.tasks.filter(function (t) { return "task-" + t.id === h; })[0]; }
+  function byId(list, id) { return list.filter(function (x) { return x.id === id; })[0]; }
+  function rerender() { var y = window.scrollY; render(true); window.scrollTo(0, y); }
+
+  /* ---------- Events ---------- */
+  document.addEventListener("click", function (e) {
+    var el = e.target.closest("[data-act]"); if (!el) return;
+    var act = el.dataset.act, id = el.dataset.id, t;
+    if (act === "clear-ex") { clearExamples(); rerender(); toast("Examples cleared. It's all yours."); }
+    if (act === "brick") { selBrick = Number(el.dataset.n); document.querySelectorAll(".brick.sel").forEach(function (b) { b.classList.remove("sel"); }); el.classList.add("sel"); document.getElementById("brick-info").innerHTML = brickInfo(selBrick); }
+    if (act === "ritual") {
+      var k = el.dataset.k; S.daily[T] = S.daily[T] || {}; S.daily[T][k] = !S.daily[T][k]; save();
+      var wasLaid = Object.keys(S.daily[T]).filter(function (x) { return S.daily[T][x]; }).length === 1 && S.daily[T][k];
+      rerender();
+      if (wasLaid) { burst(document.querySelector(".brick.today")); toast("Brick laid for day " + dayNum() + "."); }
+    }
+    if (act === "goto" || act === "advance") {
+      t = findTask(); if (!t) return;
+      var s = Number(el.dataset.s); t.view = s;
+      if (act === "advance" && s > t.step) t.step = s;
+      save(); render();
+    }
+    if (act === "toggle") { t = findTask(); t.f[el.dataset.k] = !t.f[el.dataset.k]; save(); rerender(); if (t.f[el.dataset.k]) burst(el); }
+    if (act === "copy-brief") { t = findTask(); copyText(briefText(t), el); }
+    if (act === "copy-map") { t = findTask(); copyText("Find anything in my email, Teams, SharePoint and Loop about " + t.title + " from the last 12 months: docs, decisions, people involved.", el); }
+    if (act === "close-task") {
+      t = findTask(); t.status = "done"; t.step = 7;
+      S.wins.push({ id: uid(), date: T, what: t.title, part: t.f.outcome || "", link: "" }); save();
+      burst(el); toast("Task closed. Win logged."); setTimeout(function () { location.hash = "#wins"; }, 700);
+    }
+    if (act === "del-task") { t = findTask(); S.tasks = S.tasks.filter(function (x) { return x !== t; }); save(); location.hash = "#tasks"; toast("Task deleted."); }
+    if (act === "starter") { var inp = document.getElementById("term-term"); inp.value = el.dataset.t; document.getElementById("term-meaning").focus(); }
+    if (act === "del-term") { e.stopPropagation(); S.terms = S.terms.filter(function (x) { return x.id !== id; }); save(); rerender(); return; }
+    if (act === "flip") { el.classList.toggle("flipped"); }
+    if (act === "star") { var p = byId(S.people, id); p.mentor = !p.mentor; save(); rerender(); }
+    if (act === "met") { var pm = byId(S.people, id); pm.met = (pm.met || 0) + 1; pm.last = T; save(); rerender(); burst(document.querySelector('[data-act="met"][data-id="' + id + '"]')); toast("1:1 logged with " + pm.name + "."); }
+    if (act === "del-person") { S.people = S.people.filter(function (x) { return x.id !== id; }); save(); rerender(); }
+    if (act === "del-q") { e.preventDefault(); S.questions = S.questions.filter(function (x) { return x.id !== id; }); save(); rerender(); }
+    if (act === "del-win") { S.wins = S.wins.filter(function (x) { return x.id !== id; }); save(); rerender(); }
+    if (act === "copy-wins") {
+      var txt = S.wins.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).map(function (w) { return "• " + fmt(w.date) + ": " + w.what + (w.part ? ". My part: " + w.part : "") + (w.link ? " (" + w.link + ")" : ""); }).join("\n");
+      copyText(txt, el);
+    }
+    if (act === "prompt") { V.prompts.sel = id; rerender(); }
+    if (act === "copy-prompt") { var cur = PROMPTS.filter(function (p) { return p.id === V.prompts.sel; })[0] || PROMPTS[0]; copyText(promptFill(cur, false), el); }
+  });
+  document.addEventListener("keydown", function (e) {
+    var el = e.target.closest && e.target.closest('[data-act="del-term"]');
+    if (el && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); e.stopPropagation(); el.click(); }
+  });
+  document.addEventListener("change", function (e) {
+    var el = e.target;
+    if (el.dataset.act === "asked") { var q = byId(S.questions, el.dataset.id); q.asked = el.checked; save(); rerender(); }
+    if (el.dataset.act === "chk") { S.checks[el.dataset.k] = el.checked; save(); rerender(); }
+  });
+  document.addEventListener("input", function (e) {
+    var el = e.target;
+    if (el.dataset.f) {
+      var t = findTask(); t.f[el.dataset.f] = el.value; save();
+      var doc = document.getElementById("brief-doc"); if (doc) doc.innerHTML = briefRows(t);
+    }
+    if (el.dataset.slot !== undefined) {
+      V.prompts.vals[el.dataset.slot] = el.value;
+      var cur = PROMPTS.filter(function (p) { return p.id === V.prompts.sel; })[0] || PROMPTS[0];
+      document.getElementById("prompt-out").innerHTML = promptHTML(cur);
+    }
+    if (el.id === "term-search") {
+      V.glossary.q = el.value; var q = el.value.toLowerCase();
+      document.querySelectorAll(".term").forEach(function (c) { c.hidden = !!q && c.dataset.text.indexOf(q) < 0; });
+    }
+  });
+  document.addEventListener("submit", function (e) {
+    var f = e.target, kind = f.dataset.form; if (!kind) return;
+    e.preventDefault();
+    var d = {}; new FormData(f).forEach(function (v, k) { d[k] = String(v).trim(); });
+    if (kind === "task") {
+      var size = d.size || "week", nt = { id: uid(), title: d.title, size: size, step: 1, created: T, status: "open", f: { ask: "", requester: "", deadline: "", why: "", done: "", scope: "", prior: "", people: "", risks: "", checkin: "", sent: false, draft: false, outcome: "" } };
+      S.tasks.unshift(nt); save(); location.hash = "#task-" + nt.id; return;
+    }
+    if (kind === "term") { S.terms.push({ id: uid(), term: d.term, meaning: d.meaning, where: d.where, date: T }); toast(d.meaning ? "Added to your glossary." : "Added. Decode it on Friday."); }
+    if (kind === "person") { S.people.push({ id: uid(), name: d.name, role: d.role, owns: d.owns, cares: d.cares, ring: d.ring || "direct", met: 0, last: "", mentor: false }); toast(d.name + " added."); }
+    if (kind === "question") { S.questions.push({ id: uid(), q: d.q, who: d.who || "Anyone", asked: false }); toast("Parked. Ask at the next 1:1."); }
+    if (kind === "win") { S.wins.push({ id: uid(), date: T, what: d.what, part: d.part, link: d.link }); burst(f.querySelector("button")); toast("Win logged."); }
+    if (kind === "review") { S.reviews[weekKey(T)] = { moved: d.moved, held: d.held, next: d.next, saved: true }; S.daily[T] = S.daily[T] || {}; S.daily[T].friday = true; burst(f.querySelector("button")); toast("Week saved."); }
+    save(); rerender();
   });
 
-  // Checklists
-  document.querySelectorAll(".tier").forEach(function (tier) {
-    var boxes = tier.querySelectorAll("input[type=checkbox]"), count = tier.querySelector("[data-count]"), bar = tier.querySelector(".meter-bar i");
-    function update() {
-      var n = 0; boxes.forEach(function (b) { if (b.checked) n++; });
-      count.textContent = n + " / " + boxes.length;
-      bar.style.width = (n / boxes.length * 100) + "%";
-    }
-    boxes.forEach(function (b) {
-      b.checked = store.get("gw-" + b.id) === "1";
-      b.addEventListener("change", function () { store.set("gw-" + b.id, b.checked ? "1" : "0"); update(); });
-    });
-    update();
-  });
-
-  // Scrollspy for the header nav
-  var links = {};
-  document.querySelectorAll(".nav a").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (en) {
-        if (en.isIntersecting && links[en.target.id]) {
-          Object.keys(links).forEach(function (k) { links[k].classList.toggle("active", k === en.target.id); });
-        }
-      });
-    }, { rootMargin: "-45% 0px -50% 0px" });
-    Object.keys(links).forEach(function (id) { var s = document.getElementById(id); if (s) io.observe(s); });
-  }
+  render();
 })();
 </script>
 </body>
