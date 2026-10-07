@@ -1,0 +1,34 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "id": "23f58667-5b32-49b0-819b-52d91ad0b8f9",
+  "developer": {
+    "name": "Groundwork",
+    "websiteUrl": "https://github.com/TruptiUnnithan/GroundWork",
+    "privacyUrl": "https://github.com/TruptiUnnithan/GroundWork/blob/main/agent/README.md#privacy",
+    "termsOfUseUrl": "https://github.com/TruptiUnnithan/GroundWork/blob/main/agent/README.md#terms"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "Groundwork",
+    "full": "Groundwork: PM ramp-up coach"
+  },
+  "description": {
+    "short": "Ramp-up coach for PMs in their first 90 days.",
+    "full": "Groundwork helps new product managers turn vague asks into agreed briefs, debrief meetings, decode team terms, prepare for 1:1s, run a weekly review and keep a wins log for Connects. It works from your own Microsoft 365 content and treats every answer as a draft to confirm with a person."
+  },
+  "accentColor": "#111A2E",
+  "copilotAgents": {
+    "declarativeAgents": [
+      {
+        "id": "groundwork",
+        "file": "declarativeAgent.json"
+      }
+    ]
+  },
+  "validDomains": []
+}
